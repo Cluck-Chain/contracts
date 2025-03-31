@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // 导入接口
-import "./Interfaces.sol";
+import "./interfaces.sol";
 
 /**
  * @title 瑞士鸡蛋链认证中心合约

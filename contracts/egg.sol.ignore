@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 // 导入接口
-import "./Interfaces.sol";
+import "./interfaces.sol";
 
 /**
  * @title 瑞士鸡蛋追踪合约
@@ -11,55 +11,71 @@ import "./Interfaces.sol";
 contract EggTracker is IEggTracker {
     // 认证中心合约地址
     address public authCenterAddress;
-    
+
     // 鸡蛋信息结构
     struct Egg {
-        uint256 id;              // 鸡蛋ID
-        address farmAddress;     // 生产农场地址
-        uint256 productionDate;  // 生产日期（Unix时间戳）
-        uint256 expiryDate;      // 有效期（Unix时间戳）
-        string batchNumber;      // 批次号
-        string category;         // 鸡蛋类别（例如：有机、散养等）
-        bool isRegistered;       // 是否已登记
-        string additionalInfo;   // 额外信息（如饲养方式、鸡种等）
+        uint256 id; // 鸡蛋ID
+        address farmAddress; // 生产农场地址
+        uint256 productionDate; // 生产日期（Unix时间戳）
+        uint256 expiryDate; // 有效期（Unix时间戳）
+        string batchNumber; // 批次号
+        string category; // 鸡蛋类别（例如：有机、散养等）
+        bool isRegistered; // 是否已登记
+        string additionalInfo; // 额外信息（如饲养方式、鸡种等）
     }
-    
+
     // 鸡蛋ID到鸡蛋信息的映射
     mapping(uint256 => Egg) public eggs;
-    
+
     // 农场地址到该农场登记的鸡蛋ID列表的映射
     mapping(address => uint256[]) private farmEggs;
-    
+
     // 记录已注册的鸡蛋总数
     uint256 public eggCount;
-    
+
     // 事件
-    event EggRegistered(uint256 indexed eggId, address indexed farmAddress, uint256 productionDate);
+    event EggRegistered(
+        uint256 indexed eggId,
+        address indexed farmAddress,
+        uint256 productionDate
+    );
     event EggInfoUpdated(uint256 indexed eggId, address indexed farmAddress);
-    
+
     // 修饰器：仅认证农场可调用
     modifier onlyRegisteredFarm() {
-        require(IAuthCenter(authCenterAddress).isRegisteredFarm(msg.sender), "Caller is not a registered farm");
+        require(
+            IAuthCenter(authCenterAddress).isRegisteredFarm(msg.sender),
+            "Caller is not a registered farm"
+        );
         _;
     }
-    
+
     // 构造函数
     constructor(address _authCenterAddress) {
-        require(_authCenterAddress != address(0), "Auth center address cannot be zero");
+        require(
+            _authCenterAddress != address(0),
+            "Auth center address cannot be zero"
+        );
         authCenterAddress = _authCenterAddress;
         eggCount = 0;
     }
-    
+
     /**
      * @dev 设置认证中心地址
      * @param _authCenterAddress 新的认证中心合约地址
      */
     function setAuthCenterAddress(address _authCenterAddress) external {
-        require(msg.sender == authCenterAddress, "Only current auth center can change address");
-        require(_authCenterAddress != address(0), "Auth center address cannot be zero");
+        require(
+            msg.sender == authCenterAddress,
+            "Only current auth center can change address"
+        );
+        require(
+            _authCenterAddress != address(0),
+            "Auth center address cannot be zero"
+        );
         authCenterAddress = _authCenterAddress;
     }
-    
+
     /**
      * @dev 农场登记新鸡蛋
      * @param _productionDate 生产日期（Unix时间戳）
@@ -75,18 +91,16 @@ contract EggTracker is IEggTracker {
         string memory _batchNumber,
         string memory _category,
         string memory _additionalInfo
-    ) 
-        external 
-        onlyRegisteredFarm 
-        override
-        returns (uint256 eggId) 
-    {
+    ) external override onlyRegisteredFarm returns (uint256 eggId) {
         require(_productionDate > 0, "Production date must be valid");
-        require(_expiryDate > _productionDate, "Expiry date must be after production date");
-        
+        require(
+            _expiryDate > _productionDate,
+            "Expiry date must be after production date"
+        );
+
         eggCount++;
         eggId = eggCount;
-        
+
         Egg memory newEgg = Egg({
             id: eggId,
             farmAddress: msg.sender,
@@ -97,15 +111,15 @@ contract EggTracker is IEggTracker {
             isRegistered: true,
             additionalInfo: _additionalInfo
         });
-        
+
         eggs[eggId] = newEgg;
         farmEggs[msg.sender].push(eggId);
-        
+
         emit EggRegistered(eggId, msg.sender, _productionDate);
-        
+
         return eggId;
     }
-    
+
     /**
      * @dev 农场更新鸡蛋信息
      * @param _eggId 鸡蛋ID
@@ -116,20 +130,23 @@ contract EggTracker is IEggTracker {
         uint256 _eggId,
         uint256 _expiryDate,
         string memory _additionalInfo
-    ) 
-        external 
-        onlyRegisteredFarm 
-    {
+    ) external onlyRegisteredFarm {
         require(eggs[_eggId].isRegistered, "Egg not registered");
-        require(eggs[_eggId].farmAddress == msg.sender, "Only egg's farm can update info");
-        require(_expiryDate > eggs[_eggId].productionDate, "Expiry date must be after production date");
-        
+        require(
+            eggs[_eggId].farmAddress == msg.sender,
+            "Only egg's farm can update info"
+        );
+        require(
+            _expiryDate > eggs[_eggId].productionDate,
+            "Expiry date must be after production date"
+        );
+
         eggs[_eggId].expiryDate = _expiryDate;
         eggs[_eggId].additionalInfo = _additionalInfo;
-        
+
         emit EggInfoUpdated(_eggId, msg.sender);
     }
-    
+
     /**
      * @dev 获取鸡蛋详细信息
      * @param _eggId 鸡蛋ID
@@ -137,56 +154,71 @@ contract EggTracker is IEggTracker {
      * @return farmName 农场名称
      * @return farmLocation 农场位置
      */
-    function getEggDetails(uint256 _eggId) 
-        external 
-        view 
+    function getEggDetails(
+        uint256 _eggId
+    )
+        external
+        view
         override
         returns (
             Egg memory egg,
             string memory farmName,
             string memory farmLocation
-        ) 
+        )
     {
         require(eggs[_eggId].isRegistered, "Egg not registered");
-        
+
         egg = eggs[_eggId];
-        
+
         // 从认证中心获取农场信息
-        (farmName, farmLocation, ) = IAuthCenter(authCenterAddress).getFarmDetails(egg.farmAddress);
-        
+        (farmName, farmLocation, ) = IAuthCenter(authCenterAddress)
+            .getFarmDetails(egg.farmAddress);
+
         return (egg, farmName, farmLocation);
     }
-    
+
     /**
      * @dev 检查鸡蛋是否已过期
      * @param _eggId 鸡蛋ID
      * @return true 如果鸡蛋已过期
      */
-    function isEggExpired(uint256 _eggId) external view override returns (bool) {
+    function isEggExpired(
+        uint256 _eggId
+    ) external view override returns (bool) {
         require(eggs[_eggId].isRegistered, "Egg not registered");
         return (block.timestamp > eggs[_eggId].expiryDate);
     }
-    
+
     /**
      * @dev 获取农场登记的所有鸡蛋ID
      * @param _farmAddress 农场地址
      * @return 该农场登记的所有鸡蛋ID数组
      */
-    function getFarmEggs(address _farmAddress) external view returns (uint256[] memory) {
-        require(IAuthCenter(authCenterAddress).isRegisteredFarm(_farmAddress), "Not a registered farm");
+    function getFarmEggs(
+        address _farmAddress
+    ) external view returns (uint256[] memory) {
+        require(
+            IAuthCenter(authCenterAddress).isRegisteredFarm(_farmAddress),
+            "Not a registered farm"
+        );
         return farmEggs[_farmAddress];
     }
-    
+
     /**
      * @dev 验证鸡蛋是否为认证农场生产
      * @param _eggId 鸡蛋ID
      * @return 如果鸡蛋来自认证农场则返回true
      */
-    function isAuthenticEgg(uint256 _eggId) external view override returns (bool) {
+    function isAuthenticEgg(
+        uint256 _eggId
+    ) external view override returns (bool) {
         if (!eggs[_eggId].isRegistered) {
             return false;
         }
-        
-        return IAuthCenter(authCenterAddress).isRegisteredFarm(eggs[_eggId].farmAddress);
+
+        return
+            IAuthCenter(authCenterAddress).isRegisteredFarm(
+                eggs[_eggId].farmAddress
+            );
     }
 }
