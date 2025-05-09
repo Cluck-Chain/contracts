@@ -5,11 +5,11 @@ The contracts can be run in docker.
 ## Build
 
 ```bash
-docker-compose build
+docker compose build
 ```
 
 ## Test
 
 ```bash
-docker-compose test
+docker compose run test
 ```
