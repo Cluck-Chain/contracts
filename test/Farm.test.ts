@@ -1,96 +1,97 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Contract } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("Farm", function () {
-    let authorityCenter: Contract;
-    let farm: Contract;
-    let owner: SignerWithAddress;
-    let authority: SignerWithAddress;
-    let other: SignerWithAddress;
+  let authorityCenter: Contract;
+  let farm: Contract;
+  let owner: HardhatEthersSigner;
+  let authority: HardhatEthersSigner;
+  let other: HardhatEthersSigner;
 
-    const farmName = "Test Farm";
-    const farmLocation = "Test Location";
-    const ipfsHash = "QmTestHash";
+  const farmName = "Test Farm";
+  const farmLocation = "Test Location";
+  const ipfsHash = "QmTestHash";
 
-    beforeEach(async function () {
-        [owner, authority, other] = await ethers.getSigners();
+  beforeEach(async function () {
+    [owner, authority, other] = await ethers.getSigners();
 
-        // Deploy AuthorityCenter
-        const AuthorityCenter = await ethers.getContractFactory("AuthorityCenter");
-        authorityCenter = await AuthorityCenter.deploy();
-        await authorityCenter.deployed();
+    // Deploy AuthorityCenter
+    const AuthorityCenter = await ethers.getContractFactory("AuthorityCenter");
+    authorityCenter = await AuthorityCenter.deploy();
+    await authorityCenter.waitForDeployment();
 
-        // Add authority
-        await authorityCenter.addAuthority(authority.address);
+    // Add authority
+    await authorityCenter.addAuthority(await authority.getAddress());
 
-        // Deploy Farm
-        const Farm = await ethers.getContractFactory("Farm");
-        farm = await Farm.deploy(
-            authorityCenter.address,
-            farmName,
-            farmLocation,
-            ipfsHash
-        );
-        await farm.deployed();
+    // Deploy Farm
+    const Farm = await ethers.getContractFactory("Farm");
+    farm = await Farm.deploy(
+      await authorityCenter.getAddress(),
+      farmName,
+      farmLocation,
+      ipfsHash
+    );
+    await farm.waitForDeployment();
 
-        // Register farm
-        await authorityCenter.connect(authority).registerFarm(
-            farm.address,
-            farmName,
-            farmLocation,
-            ipfsHash
-        );
+    // Register farm
+    await authorityCenter
+      .connect(authority)
+      .registerFarm(await farm.getAddress(), farmName, farmLocation, ipfsHash);
+  });
+
+  describe("Deployment", function () {
+    it("Should set the right owner", async function () {
+      expect(await farm.owner()).to.equal(await owner.getAddress());
     });
 
-    describe("Deployment", function () {
-        it("Should set the right owner", async function () {
-            expect(await farm.owner()).to.equal(owner.address);
-        });
-
-        it("Should set the right authority center", async function () {
-            expect(await farm.authorityCenter()).to.equal(authorityCenter.address);
-        });
-
-        it("Should set the right farm info", async function () {
-            expect(await farm.name()).to.equal(farmName);
-            expect(await farm.location()).to.equal(farmLocation);
-            expect(await farm.ipfsHash()).to.equal(ipfsHash);
-        });
+    it("Should set the right authority center", async function () {
+      expect(await farm.authorityCenter()).to.equal(
+        await authorityCenter.getAddress()
+      );
     });
 
-    describe("Farm Info Management", function () {
-        it("Should allow owner to update farm info", async function () {
-            const newName = "New Farm Name";
-            const newLocation = "New Location";
-            const newIpfsHash = "QmNewHash";
+    it("Should set the right farm info", async function () {
+      expect(await farm.name()).to.equal(farmName);
+      expect(await farm.location()).to.equal(farmLocation);
+      expect(await farm.ipfsHash()).to.equal(ipfsHash);
+    });
+  });
 
-            await farm.updateInfo(newName, newLocation, newIpfsHash);
+  describe("Farm Info Management", function () {
+    it("Should allow owner to update farm info", async function () {
+      const newName = "New Farm Name";
+      const newLocation = "New Location";
+      const newIpfsHash = "QmNewHash";
 
-            expect(await farm.name()).to.equal(newName);
-            expect(await farm.location()).to.equal(newLocation);
-            expect(await farm.ipfsHash()).to.equal(newIpfsHash);
-        });
+      await farm.updateInfo(newName, newLocation, newIpfsHash);
 
-        it("Should not allow non-owner to update farm info", async function () {
-            const newName = "New Farm Name";
-            const newLocation = "New Location";
-            const newIpfsHash = "QmNewHash";
-
-            await expect(
-                farm.connect(other).updateInfo(newName, newLocation, newIpfsHash)
-            ).to.be.revertedWith("Only owner can call this function");
-        });
+      expect(await farm.name()).to.equal(newName);
+      expect(await farm.location()).to.equal(newLocation);
+      expect(await farm.ipfsHash()).to.equal(newIpfsHash);
     });
 
-    describe("Authorization", function () {
-        it("Should return correct authorization status", async function () {
-            expect(await farm.isAuthorized()).to.be.true;
+    it("Should not allow non-owner to update farm info", async function () {
+      const newName = "New Farm Name";
+      const newLocation = "New Location";
+      const newIpfsHash = "QmNewHash";
 
-            // Remove farm from authority center
-            await authorityCenter.connect(authority).removeFarm(farm.address);
-            expect(await farm.isAuthorized()).to.be.false;
-        });
+      await expect(
+        farm.connect(other).updateInfo(newName, newLocation, newIpfsHash)
+      ).to.be.revertedWith("Only owner can call this function");
     });
-}); 
+  });
+
+  describe("Authorization", function () {
+    it("Should return correct authorization status", async function () {
+      expect(await farm.isAuthorized()).to.be.true;
+
+      // Remove farm from authority center
+      await authorityCenter
+        .connect(authority)
+        .removeFarm(await farm.getAddress());
+      expect(await farm.isAuthorized()).to.be.false;
+    });
+  });
+});

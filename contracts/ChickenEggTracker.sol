@@ -34,7 +34,7 @@ contract ChickenEggTracker {
     event EggRemoved(string eggId);
     
     modifier onlyFarm() {
-        require(msg.sender == address(farm), "Only farm can call this function");
+        require(msg.sender == farm.owner(), "Only farm owner can call this function");
         _;
     }
     
