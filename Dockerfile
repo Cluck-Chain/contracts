@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 
 # Copy package.json
-COPY package.json .
+COPY package*.json .
 
 # Install dependencies
 RUN npm install
