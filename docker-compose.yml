@@ -5,8 +5,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8545:8545" # Map the Hardhat node port to the host
-    volumes:
-      - .:/app # Mount the current directory to the container
     stdin_open: true
     tty: true
     command: ["bash"] # Default command to keep the container interactive
@@ -15,8 +13,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - .:/app
     command: ["npx", "hardhat", "compile"]
 
   test:
@@ -24,7 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - ./test:/app/test
     command: ["npx", "hardhat", "test"]
 
   run:
@@ -33,6 +29,4 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8545:8545"
-    volumes:
-      - .:/app
     command: ["npx", "hardhat", "node"]
