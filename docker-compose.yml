@@ -28,3 +28,56 @@ services:
     ports:
       - "8545:8545"
     command: ["npx", "hardhat", "node"]
+    networks:
+      - blockchain-network
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    depends_on:
+      - run
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - JWT_SECRET=your_jwt_secret_key
+      - BLOCKCHAIN_URL=http://run:8545
+      - PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      - CHICKEN_EGG_TRACKER_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+      - FARM_ADDRESS=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+      - AUTHORITY_CENTER_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+    networks:
+      - blockchain-network
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001/api
+      - REACT_APP_RPC_URL=http://localhost:8545
+      - REACT_APP_CHICKEN_EGG_TRACKER_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+      - REACT_APP_FARM_ADDRESS=0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+      - REACT_APP_AUTHORITY_CENTER_ADDRESS=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+    networks:
+      - blockchain-network
+
+  deploy:
+    build:
+      context: contracts
+      dockerfile: Dockerfile
+    command: ["npx", "hardhat", "run", "scripts/deploy.js", "--network", "localhost"]
+    depends_on:
+      - run
+    networks:
+      - blockchain-network
+
+networks:
+  blockchain-network:
+    driver: bridge
