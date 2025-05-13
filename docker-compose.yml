@@ -1,7 +1,7 @@
 services:
   hardhat:
     build:
-      context: .
+      context: contracts
       dockerfile: Dockerfile
     ports:
       - "8545:8545" # Map the Hardhat node port to the host
@@ -11,21 +11,19 @@ services:
 
   compile:
     build:
-      context: .
+      context: contracts
       dockerfile: Dockerfile
     command: ["npx", "hardhat", "compile"]
 
   test:
     build:
-      context: .
+      context: contracts
       dockerfile: Dockerfile
-    volumes:
-      - ./test:/app/test
     command: ["npx", "hardhat", "test"]
 
   run:
     build:
-      context: .
+      context: contracts
       dockerfile: Dockerfile
     ports:
       - "8545:8545"
