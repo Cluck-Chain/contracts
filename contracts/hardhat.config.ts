@@ -25,7 +25,8 @@ const config: HardhatUserConfig = {
     sources: './contracts',
     tests: './test',
     cache: './cache',
-    artifacts: './artifacts',
+    artifacts: "./artifacts",
+    typechain: "./typechain-types",
   },
   typechain: {
     outDir: 'typechain-types',

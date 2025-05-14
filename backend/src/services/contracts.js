@@ -1,7 +1,5 @@
 const { ethers } = require('ethers');
-const chickenEggTrackerABI = require('../../abis/ChickenEggTracker.json');
-const farmABI = require('../../abis/Farm.json');
-const authorityCenterABI = require('../../abis/AuthorityCenter.json');
+const { ChickenEggTrackerABI, FarmABI, AuthorityCenterABI } = require('../contract-types');
 
 // Connect to blockchain
 const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_URL || 'http://hardhat:8545');
@@ -15,19 +13,19 @@ const AUTHORITY_CENTER_ADDRESS = process.env.AUTHORITY_CENTER_ADDRESS;
 // Contract instances
 const chickenEggTrackerContract = new ethers.Contract(
   CHICKEN_EGG_TRACKER_ADDRESS,
-  chickenEggTrackerABI.abi,
+  ChickenEggTrackerABI.abi,
   wallet
 );
 
 const farmContract = new ethers.Contract(
   FARM_ADDRESS,
-  farmABI.abi,
+  FarmABI.abi,
   wallet
 );
 
 const authorityCenterContract = new ethers.Contract(
   AUTHORITY_CENTER_ADDRESS,
-  authorityCenterABI.abi,
+  AuthorityCenterABI.abi,
   wallet
 );
 
