@@ -1,14 +1,25 @@
 const { ethers } = require('ethers');
 const { ChickenEggTrackerABI, FarmABI, AuthorityCenterABI } = require('../contract-types');
+const fs = require('fs');
+const path = require('path');
+
+// 读取合约地址
+const deployedPath = path.resolve(__dirname, '../../../shared/deployed.json');
+let deployed = {};
+try {
+  deployed = JSON.parse(fs.readFileSync(deployedPath, 'utf-8'));
+} catch (e) {
+  console.error('Failed to read deployed.json:', e);
+}
 
 // Connect to blockchain
 const provider = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_URL || 'http://hardhat:8545');
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80', provider);
 
-// Contract addresses (these should be in .env file)
-const CHICKEN_EGG_TRACKER_ADDRESS = process.env.CHICKEN_EGG_TRACKER_ADDRESS;
-const FARM_ADDRESS = process.env.FARM_ADDRESS;
-const AUTHORITY_CENTER_ADDRESS = process.env.AUTHORITY_CENTER_ADDRESS;
+// 合约地址从 deployed.json 获取
+const CHICKEN_EGG_TRACKER_ADDRESS = deployed.ChickenEggTracker;
+const FARM_ADDRESS = deployed.Farm;
+const AUTHORITY_CENTER_ADDRESS = deployed.AuthorityCenter;
 
 // Contract instances
 const chickenEggTrackerContract = new ethers.Contract(

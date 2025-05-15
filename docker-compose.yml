@@ -7,16 +7,16 @@ services:
     tty: true
     command: ["npx", "hardhat", "compile"] 
     volumes:
-      - contract-artifacts:/app/artifacts
-      - contract-typechain:/app/typechain-types
+      - ./shared/artifacts:/app/artifacts
+      - ./shared/typechain-types:/app/typechain-types
   test:
     build:
       context: contracts
       dockerfile: Dockerfile
     command: ["npx", "hardhat", "test"]
     volumes:
-      - contract-artifacts:/app/artifacts
-      - contract-typechain:/app/typechain-types
+      - ./shared/artifacts:/app/artifacts
+      - ./shared/typechain-types:/app/typechain-types
 
   run:
     build:
@@ -28,8 +28,8 @@ services:
     networks:
       - blockchain-network
     volumes:
-      - contract-artifacts:/app/artifacts
-      - contract-typechain:/app/typechain-types
+      - ./shared/artifacts:/app/artifacts
+      - ./shared/typechain-types:/app/typechain-types
 
   backend:
     build:
@@ -51,13 +51,41 @@ services:
     networks:
       - blockchain-network
     volumes:
-      - contract-artifacts:/app/src/contract-artifacts
-      - contract-typechain:/app/src/contract-typechain
+      - ./shared/artifacts:/app/src/contract-artifacts
+      - ./shared/typechain-types:/app/src/contract-typechain
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://backend:8080
+    depends_on:
+      - backend
+      - run
+    volumes:
+      - ./shared/artifacts:/app/artifacts
+      - ./shared/typechain-types:/app/typechain-types
+      - ./shared:/app/shared
+    networks:
+      - blockchain-network
+
+  deploy:
+    build:
+      context: contracts
+      dockerfile: Dockerfile
+    command: ["npx", "hardhat", "run", "scripts/deploy.ts", "--network", "localhost"]
+    depends_on:
+      - run
+    volumes:
+      - ./shared/artifacts:/app/artifacts
+      - ./shared/typechain-types:/app/typechain-types
+      - ./shared:/app/shared
+    networks:
+      - blockchain-network
 
 networks:
   blockchain-network:
     driver: bridge
-
-volumes:
-  contract-artifacts:
-  contract-typechain:
