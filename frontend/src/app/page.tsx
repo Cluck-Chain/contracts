@@ -4,23 +4,9 @@ import styles from "./page.module.css";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 // 合约 ABI 和类型导入（从shared目录获取）
-import FarmArtifact from "../../artifacts/contracts/Farm.sol/Farm.json";
-import type { Farm } from "../../typechain-types/Farm";
-
-// 获取合约地址
-async function fetchDeployedAddress(): Promise<string | null> {
-  try {
-    // 优先使用public目录的deployed.json
-    const res = await fetch("../../shared/deployed.json");
-    if (res.ok) {
-      const deployed = await res.json();
-      return deployed.Farm;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
+import FarmArtifact from "../../shared/artifacts/contracts/Farm.sol/Farm.json";
+import type { Farm } from "../../shared/typechain-types/Farm";
+import deployed from "../../shared/deployed.json";
 
 export default function Home() {
   // 钱包连接相关
@@ -29,7 +15,7 @@ export default function Home() {
   const [isActive, setIsActive] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
   const [backendData, setBackendData] = useState("");
-  const [farmAddress, setFarmAddress] = useState<string>("");
+  const [farmAddress, setFarmAddress] = useState<string>(deployed.Farm);
   
   // 合约数据
   const [farmName, setFarmName] = useState("");
@@ -68,15 +54,6 @@ export default function Home() {
       .then(setBackendData)
       .catch(() => setBackendData("后端不可访问"));
     
-    // 获取合约地址
-    fetchDeployedAddress().then(addr => { 
-      if (addr) {
-        console.log("获取Farm合约地址:", addr);
-        setFarmAddress(addr); 
-      } else {
-        console.warn("无法获取deployed.json中的Farm合约地址，使用备用地址");
-      }
-    });
   }, []);
 
   // 合约交互示例
