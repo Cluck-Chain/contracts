@@ -17,19 +17,18 @@ const config: HardhatUserConfig = {
       chainId: 1337,
     },
     localhost: {
-      url: 'http://run:8545',
+      url: 'http://localhost:8545',
       chainId: 1337,
     },
   },
   paths: {
     sources: './contracts',
-    tests: './test',
+    tests: './tests',
     cache: './cache',
     artifacts: "./artifacts",
-    typechain: "./typechain-types",
   },
   typechain: {
-    outDir: 'typechain-types',
+    outDir: 'typechain',
     target: 'ethers-v6',
   },
 };

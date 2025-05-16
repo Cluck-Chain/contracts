@@ -7,14 +7,14 @@
   --button-secondary-hover: #f2f2f2;
   --primary-color: #3b82f6;
   --primary-hover: #2563eb;
+  --secondary-color: #6b7280;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
 
   display: grid;
-  grid-template-rows: 20px 1fr 20px;
-  align-items: center;
-  justify-items: center;
+  grid-template-rows: auto 1fr auto;
   min-height: 100svh;
-  padding: 80px;
-  gap: 64px;
   font-family: var(--font-geist-sans);
 }
 
@@ -31,219 +31,349 @@
   }
 }
 
-.main {
+/* 导航栏样式 */
+.navbar {
   display: flex;
-  flex-direction: column;
-  gap: 32px;
-  grid-row-start: 2;
-  width: 100%;
-  max-width: 800px;
-}
-
-.main h1 {
-  text-align: center;
-  margin: 0 0 20px 0;
-}
-
-.main h2 {
-  font-size: 1.5rem;
-  margin: 0 0 16px 0;
-  padding-bottom: 8px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--gray-alpha-100);
   border-bottom: 1px solid var(--gray-alpha-200);
 }
 
-.connectWallet {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.connectWallet button {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.connectWallet button:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-}
-
-.connectWallet button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.contractInfo, .backendInfo {
-  background-color: var(--gray-alpha-100);
-  border-radius: 8px;
-  padding: 20px;
-  width: 100%;
-}
-
-.contractInfo button {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin: 10px 0;
-}
-
-.contractInfo button:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-}
-
-.contractInfo button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.farmDetails {
-  margin-top: 16px;
-  padding: 16px;
-  background-color: var(--gray-alpha-200);
-  border-radius: 6px;
-}
-
-.farmDetails h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
-}
-
-.farmDetails p {
-  margin: 8px 0;
-}
-
-.footer {
-  grid-row-start: 3;
-  text-align: center;
-}
-
-.main ol {
-  font-family: var(--font-geist-mono);
-  padding-left: 0;
+.navbarBrand h1 {
   margin: 0;
-  font-size: 14px;
-  line-height: 24px;
-  letter-spacing: -0.01em;
-  list-style-position: inside;
+  font-size: 1.5rem;
 }
 
-.main li:not(:last-of-type) {
-  margin-bottom: 8px;
-}
-
-.main code {
-  font-family: inherit;
-  background: var(--gray-alpha-100);
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.ctas {
+.navbarTabs {
   display: flex;
-  gap: 16px;
+  gap: 0.5rem;
 }
 
-.ctas a {
-  appearance: none;
-  border-radius: 128px;
-  height: 48px;
-  padding: 0 20px;
+.navbarTab {
+  padding: 0.5rem 1rem;
   border: none;
-  border: 1px solid transparent;
-  transition:
-    background 0.2s,
-    color 0.2s,
-    border-color 0.2s;
+  background: none;
+  border-radius: 0.25rem;
   cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.navbarTab:hover {
+  background-color: var(--gray-alpha-100);
+}
+
+.navbarTabActive {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.navbarTabActive:hover {
+  background-color: var(--primary-hover);
+}
+
+.connectWalletButton {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.connectWalletButton:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.connectWalletButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 已连接钱包样式 */
+.connectedWallet {
+  background-color: var(--success-color);
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  line-height: 20px;
+  font-family: monospace;
   font-weight: 500;
 }
 
-a.primary {
-  background: var(--foreground);
-  color: var(--background);
-  gap: 8px;
+.connectedWallet:hover {
+  background-color: var(--danger-color);
 }
 
-a.secondary {
-  border-color: var(--gray-alpha-200);
-  min-width: 158px;
+.connectedWallet::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
 }
 
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
   }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
+  70% {
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
   }
-
-  .footer a:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
   }
 }
 
-@media (max-width: 600px) {
-  .page {
-    padding: 32px;
-    padding-bottom: 80px;
-  }
+/* 主内容区域 */
+.main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
 
-  .main {
-    align-items: center;
-  }
+.placeholderContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+}
 
-  .main ol {
-    text-align: center;
-  }
+/* 模块容器 */
+.moduleContainer {
+  margin-bottom: 2rem;
+}
 
-  .ctas {
+.moduleContainer h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gray-alpha-200);
+}
+
+/* 地址和账户信息 */
+.addressInfo, .accountInfo {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: var(--gray-alpha-100);
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
+.ownerTag, .authorityTag {
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.ownerTag {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.authorityTag {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+/* 数据部分 */
+.dataSection {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--gray-alpha-100);
+  border-radius: 0.5rem;
+}
+
+.dataSection h3, .dataSection h4 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.dataGrid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dataRow {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+}
+
+.dataLabel {
+  font-weight: 500;
+}
+
+.dataValue {
+  font-family: monospace;
+  word-break: break-all;
+}
+
+/* 表单部分 */
+.sectionCard {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background-color: var(--gray-alpha-100);
+  border-radius: 0.5rem;
+}
+
+.sectionCard h3, .sectionCard h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-weight: 500;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--gray-alpha-200);
+  border-radius: 0.25rem;
+  background-color: transparent;
+  transition: border-color 0.2s;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* 按钮样式 */
+.actionButton, .submitButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-right: 0.5rem;
+}
+
+.actionButton {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.actionButton:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.submitButton {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.actionButton:disabled, .submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* 标签页容器 */
+.tabContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.tabSection {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabHeader {
+  margin-bottom: 1rem;
+}
+
+.tabHeader h3 {
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary-color);
+  margin-top: 0;
+}
+
+/* 后端信息 */
+.backendInfo {
+  margin-top: 2rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  border-top: 1px solid var(--gray-alpha-200);
+}
+
+/* 页脚 */
+.footer {
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+  border-top: 1px solid var(--gray-alpha-200);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .navbar {
     flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
   }
-
-  .ctas a {
-    font-size: 14px;
-    height: 40px;
-    padding: 0 16px;
-  }
-
-  a.secondary {
-    min-width: auto;
-  }
-
-  .footer {
-    flex-wrap: wrap;
-    align-items: center;
+  
+  .navbarTabs {
+    width: 100%;
     justify-content: center;
   }
-
-  .contractInfo, .backendInfo {
-    padding: 16px;
+  
+  .main {
+    padding: 1rem;
+  }
+  
+  .tabContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .dataRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .dataLabel {
+    margin-bottom: 0.25rem;
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
+@media (max-width: 480px) {
+  .buttonGroup {
+    flex-direction: column;
+  }
+  
+  .actionButton {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
   }
 }
