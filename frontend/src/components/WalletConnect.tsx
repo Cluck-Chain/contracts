@@ -14,7 +14,7 @@ export function WalletConnect() {
           disabled={connecting}
           className="connect-button"
         >
-          {connecting ? '连接中...' : '连接钱包'}
+          {connecting ? 'Connecting...' : 'Connect Wallet'}
         </button>
       ) : (
         <div className="wallet-info">
@@ -25,7 +25,7 @@ export function WalletConnect() {
             onClick={disconnect}
             className="disconnect-button"
           >
-            断开连接
+            Disconnect
           </button>
         </div>
       )}

@@ -23,15 +23,15 @@ export default function NavBar({
   isConnecting
 }: NavBarProps) {
   const tabs = [
-    { id: 'farm', name: '农场管理' },
-    { id: 'authority', name: '认证中心' },
-    { id: 'tracker', name: '鸡蛋追踪' },
+    { id: 'farm', name: 'Farm Management' },
+    { id: 'authority', name: 'Authority Center' },
+    { id: 'tracker', name: 'Egg Tracking' },
   ];
 
   return (
     <div className={styles.navbar}>
       <div className={styles.navbarBrand}>
-        <h1>区块链农场系统</h1>
+        <h1>Blockchain Farm System</h1>
       </div>
       
       <div className={styles.navbarTabs}>
@@ -51,7 +51,7 @@ export default function NavBar({
           <Button 
             onClick={onDisconnectWallet}
             className={styles.connectedWallet}
-            title="点击断开连接"
+            title="Click to disconnect"
           >
             {formatAddress(walletAddress)}
           </Button>
@@ -59,10 +59,10 @@ export default function NavBar({
           <Button 
             onClick={onConnectWallet} 
             disabled={isConnecting}
-            loadingText="连接中..."
+            loadingText="Connecting..."
             isLoading={isConnecting}
           >
-            连接钱包
+            Connect Wallet
           </Button>
         )}
       </div>

@@ -15,20 +15,20 @@ export function FarmList() {
   }, [isConnected, loadFarms]);
 
   if (!isConnected) {
-    return <p>请先连接钱包以查看您的农场</p>;
+    return <p>Please connect your wallet to view your farms</p>;
   }
 
   if (loading) {
-    return <p>加载中...</p>;
+    return <p>Loading...</p>;
   }
 
   if (farms.length === 0) {
-    return <p>您还没有创建任何农场</p>;
+    return <p>You haven't created any farms yet</p>;
   }
 
   return (
     <div className="farm-list">
-      <h2>您的农场</h2>
+      <h2>Your Farms</h2>
       
       <div className="farms">
         {farms.map((farm) => (
@@ -38,21 +38,21 @@ export function FarmList() {
             onClick={() => selectFarm(farm.address)}
           >
             <h3>{farm.name}</h3>
-            <p className="address">地址: {farm.address.slice(0, 8)}...{farm.address.slice(-6)}</p>
+            <p className="address">Address: {farm.address.slice(0, 8)}...{farm.address.slice(-6)}</p>
             <div className="stats">
               <div className="stat">
-                <span className="label">鸡:</span>
+                <span className="label">Chickens:</span>
                 <span className="value">{farm.chickenCount}</span>
               </div>
               <div className="stat">
-                <span className="label">蛋:</span>
+                <span className="label">Eggs:</span>
                 <span className="value">{farm.eggCount}</span>
               </div>
             </div>
             <div className="status">
               {farm.isRegistered ? 
-                <span className="registered">已认证</span> : 
-                <span className="unregistered">未认证</span>
+                <span className="registered">Registered</span> : 
+                <span className="unregistered">Unregistered</span>
               }
             </div>
           </div>

@@ -7,8 +7,6 @@ import {
   getSigner, 
   deployFarm, 
   getFarmContract, 
-  getAuthorityCenterContract, 
-  getAuthorityCenterWithSigner,
   registerFarmToAuthority,
   isFarmRegistered,
   isUserAuthority
@@ -17,58 +15,58 @@ import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
-  // 钱包状态
+  // Wallet status
   const [account, setAccount] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [isAuthority, setIsAuthority] = useState(false);
   const [contractReady, setContractReady] = useState(false);
   
-  // Farm状态
+  // Farm status
   const [farms, setFarms] = useState<{address: string, name: string, isRegistered: boolean}[]>([]);
   const [selectedFarm, setSelectedFarm] = useState<string | null>(null);
   
-  // 表单状态
+  // Form state
   const [farmName, setFarmName] = useState('');
   const [farmMetadata, setFarmMetadata] = useState('');
   const [farmAddress, setFarmAddress] = useState('');
   const [autoRegister, setAutoRegister] = useState(true);
   const [ownerAddress, setOwnerAddress] = useState('');
   
-  // 加载状态
+  // Loading state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 初始化检查合约状态
+  // Initialize and check contract status
   useEffect(() => {
     async function checkContract() {
       try {
-        // 检查合约是否部署和可用
+        // Check if contract is deployed and available
         const provider = await getProvider();
         const code = await provider.getCode("0x5FbDB2315678afecb367f032d93F642f64180aa3");
         
-        // 如果返回的不是"0x"，说明合约已部署
+        // If the returned code is not "0x", the contract is deployed
         if (code !== "0x") {
           setContractReady(true);
         } else {
-          setError("AuthorityCenter 合约未部署或地址错误，请确认合约部署情况");
+          setError("AuthorityCenter contract is not deployed or the address is incorrect. Please verify the contract deployment status.");
         }
       } catch (err) {
-        console.error("检查合约失败:", err);
-        setError("无法连接到区块链网络，请确认 MetaMask 已连接到正确网络");
+        console.error("Failed to check contract:", err);
+        setError("Unable to connect to the blockchain network. Please ensure MetaMask is connected to the correct network.");
       }
     }
     
     checkContract();
   }, []);
 
-  // 连接钱包
+  // Connect wallet
   const connectWallet = async () => {
     try {
       if (typeof window !== 'undefined' && window.ethereum) {
         setLoading(true);
         setError(null);
         
-        // 请求用户连接钱包
+        // Request user to connect wallet
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         
         const provider = await getProvider();
@@ -78,71 +76,71 @@ export default function Home() {
         setAccount(address);
         setIsConnected(true);
         
-        // 如果合约已准备就绪，才检查权限
+        // Only check permissions if contract is ready
         if (contractReady) {
           try {
-            // 检查是否为authority
+            // Check if user is an authority
             const authority = await isUserAuthority();
             setIsAuthority(authority);
           } catch (err) {
-            console.error("检查权限失败:", err);
-            // 即使失败也继续，把用户当作普通用户
+            console.error("Failed to check permissions:", err);
+            // Continue even if failed, treat user as regular user
           }
         }
         
-        // 加载用户的农场
+        // Load user's farms
         await loadUserFarms(address);
         
-        // 设置账户变化监听
+        // Set account change listener
         window.ethereum.on('accountsChanged', handleAccountsChanged);
       }
     } catch (err) {
-      console.error('连接钱包出错:', err);
-      setError('连接钱包失败：' + (err instanceof Error ? err.message : '未知错误'));
+      console.error('Error connecting wallet:', err);
+      setError('Failed to connect wallet: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setLoading(false);
     }
   };
   
-  // 断开钱包连接
+  // Disconnect wallet
   const disconnectWallet = () => {
     setAccount(null);
     setIsConnected(false);
     setIsAuthority(false);
     setFarms([]);
     
-    // 如果使用MetaMask，尝试移除监听器
+    // If using MetaMask, try to remove listeners
     if (typeof window !== 'undefined' && window.ethereum) {
       window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
     }
   };
   
-  // 监听账户变化
+  // Listen for account changes
   const handleAccountsChanged = async (accounts: string[]) => {
     if (accounts.length === 0) {
-      // 用户断开连接
+      // User disconnected
       setAccount(null);
       setIsConnected(false);
       setIsAuthority(false);
     } else {
       setAccount(accounts[0]);
       
-      // 检查新账户的权限
+      // Check new account permissions
       if (contractReady) {
         try {
           const authority = await isUserAuthority();
           setIsAuthority(authority);
         } catch (err) {
-          console.error('检查权限出错:', err);
+          console.error('Error checking permissions:', err);
         }
       }
       
-      // 加载用户的农场
+      // Load user's farms
       loadUserFarms(accounts[0]);
     }
   };
   
-  // 从本地存储加载用户的农场
+  // Load user's farms from local storage
   const loadUserFarms = async (userAddress: string) => {
     setLoading(true);
     try {
@@ -162,7 +160,7 @@ export default function Home() {
               try {
                 registered = await isFarmRegistered(address);
               } catch (err) {
-                console.error(`检查农场 ${address} 注册状态出错:`, err);
+                console.error(`Error checking farm ${address} registration status:`, err);
               }
             }
             
@@ -172,21 +170,21 @@ export default function Home() {
               isRegistered: registered
             });
           } catch (err) {
-            console.error(`加载农场 ${address} 出错:`, err);
+            console.error(`Error loading farm ${address}:`, err);
           }
         }
         
         setFarms(farmData);
       }
     } catch (err) {
-      console.error('加载农场数据出错:', err);
-      setError('加载农场数据失败');
+      console.error('Error loading farm data:', err);
+      setError('Failed to load farm data');
     } finally {
       setLoading(false);
     }
   };
   
-  // 创建新的Farm合约
+  // Create new Farm contract
   const createFarm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!farmName || !farmMetadata || !account) return;
@@ -195,33 +193,34 @@ export default function Home() {
     setError(null);
     
     try {
-      // 显示正在创建的提示
-      setError("正在部署农场合约，请稍候并在MetaMask中确认交易...");
+      // Show creating notification
+      setError("Deploying farm contract, please wait and confirm the transaction in MetaMask...");
       
-      // 确定农场的所有者地址
-      const owner = ownerAddress || account;
+      // Determine farm owner address
+      const ownerAddr = ownerAddress && ethers.isAddress(ownerAddress) 
+        ? ownerAddress 
+        : account;
       
-      // 部署Farm合约
-      const farm = await deployFarm(owner, farmName, farmMetadata);
+      // Deploy Farm contract
+      const farm = await deployFarm(ownerAddr, farmName, farmMetadata);
       const farmAddress = await farm.getAddress();
       
-      // 清除处理中的提示
+      // Clear processing notification
       setError(null);
       
-      // 如果选择了自动认证且用户是权限管理员
-      if (autoRegister && isAuthority && contractReady) {
+      // If auto-register is selected and user is an authority
+      if (autoRegister && isAuthority) {
         try {
-          setError("正在认证农场，请在MetaMask中确认交易...");
+          setError("Registering farm with authority, please confirm transaction in MetaMask...");
           await registerFarmToAuthority(farmAddress);
-          setError(null);
         } catch (regErr) {
-          console.error('自动注册农场出错:', regErr);
-          setError('农场已创建，但自动认证失败: ' + 
-                   (regErr instanceof Error ? regErr.message : '未知错误'));
+          console.error('Error auto-registering farm:', regErr);
+          setError('Farm created, but automatic registration failed: ' +
+            (regErr instanceof Error ? regErr.message : 'Unknown error'));
         }
       }
       
-      // 保存到本地存储
+      // Save to local storage
       const storedFarms = localStorage.getItem(`farms_${account}`) || '[]';
       const farmAddresses = JSON.parse(storedFarms) as string[];
       
@@ -230,36 +229,28 @@ export default function Home() {
         localStorage.setItem(`farms_${account}`, JSON.stringify(farmAddresses));
       }
       
-      // 显示成功消息
-      setError(`农场创建成功! 地址: ${farmAddress.slice(0,6)}...${farmAddress.slice(-4)}`);
+      // Show success message
+      setError(`Farm created successfully! Address: ${farmAddress.slice(0,6)}...${farmAddress.slice(-4)}`);
       
-      // 重新加载农场列表
+      // Reload farm list
       loadUserFarms(account);
       
-      // 清空表单
+      // Reset form
       setFarmName('');
       setFarmMetadata('');
       setOwnerAddress('');
-      
-      // 3秒后清除成功消息
-      setTimeout(() => {
-        if (error && error.startsWith('农场创建成功')) {
-          setError(null);
-        }
-      }, 3000);
-      
     } catch (err) {
-      console.error('创建农场出错:', err);
-      setError('创建农场失败: ' + (err instanceof Error ? err.message : '未知错误'));
+      console.error('Error creating farm:', err);
+      setError('Failed to create farm: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setLoading(false);
     }
   };
   
-  // 注册Farm到AuthorityCenter
+  // Register Farm with AuthorityCenter
   const registerFarm = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!farmAddress || !contractReady) return;
+    if (!farmAddress || !isConnected || !isAuthority) return;
     
     setLoading(true);
     setError(null);
@@ -267,49 +258,52 @@ export default function Home() {
     try {
       await registerFarmToAuthority(farmAddress);
       
-      // 如果注册的是用户自己的Farm，更新状态
-      if (farms.some(farm => farm.address === farmAddress)) {
-        loadUserFarms(account || '');
+      // If registering user's own Farm, update status
+      const farmIndex = farms.findIndex(f => f.address.toLowerCase() === farmAddress.toLowerCase());
+      if (farmIndex >= 0) {
+        const updatedFarms = [...farms];
+        updatedFarms[farmIndex] = { ...updatedFarms[farmIndex], isRegistered: true };
+        setFarms(updatedFarms);
       }
       
-      // 清空输入
+      // Clear input
       setFarmAddress('');
-      
     } catch (err) {
-      console.error('注册农场出错:', err);
-      setError('注册农场失败: ' + (err instanceof Error ? err.message : '未知错误'));
+      console.error('Error registering farm:', err);
+      setError('Failed to register farm: ' + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setLoading(false);
     }
   };
 
-  // 查看农场详情
+  // View farm details
   const viewFarmDetails = (farmAddress: string) => {
+    setSelectedFarm(farmAddress);
     router.push(`/farm/${farmAddress}`);
   };
 
   return (
     <div className="container">
       <header>
-        <h1>区块链农场管理系统</h1>
+        <h1>Blockchain Farm Management System</h1>
         <div className="wallet-section">
           <button 
             onClick={isConnected ? disconnectWallet : connectWallet} 
             disabled={loading || !contractReady}
             className={`wallet-btn ${isConnected ? 'disconnect-btn' : 'connect-btn'}`}
           >
-            {loading ? '处理中...' : isConnected ? 
-              `断开连接 (${account?.slice(0,6)}...${account?.slice(-4)})` : 
-              '连接钱包'}
+            {loading ? 'Processing...' : isConnected ? 
+              `Disconnect (${account?.slice(0,6)}...${account?.slice(-4)})` : 
+              'Connect Wallet'}
           </button>
-          {isConnected && isAuthority && <span className="authority-badge">权限管理员</span>}
+          {isConnected && isAuthority && <span className="authority-badge">Authority Admin</span>}
         </div>
       </header>
       
       {error && (
         <div className={`message-box ${
-          error.startsWith('正在') ? 'info-message' : 
-          error.startsWith('农场创建成功') ? 'success-message' : 
+          error.startsWith('Deploying') ? 'info-message' : 
+          error.startsWith('Farm created successfully') ? 'success-message' : 
           'error-message'
         }`}>
           {error}
@@ -318,46 +312,46 @@ export default function Home() {
       
       {!contractReady && (
         <div className="contract-warning">
-          <h2>合约未部署或无法访问</h2>
-          <p>请确保 AuthorityCenter 合约已经正确部署，并且您已连接到正确的网络。</p>
-          <p>您可以暂时使用创建农场功能，但无法进行注册等操作。</p>
+          <h2>Contract Not Deployed or Inaccessible</h2>
+          <p>Please ensure that the AuthorityCenter contract is correctly deployed and you are connected to the correct network.</p>
+          <p>You can temporarily use the create farm feature, but you cannot perform registration or other operations.</p>
         </div>
       )}
       
       {isConnected && (
         <div className="main-content">
           <div className="card">
-            <h2>创建新农场</h2>
+            <h2>Create New Farm</h2>
             <form onSubmit={createFarm}>
               <div className="form-group">
-                <label>农场名称</label>
+                <label>Farm Name</label>
                 <input 
                   type="text" 
                   value={farmName} 
                   onChange={(e) => setFarmName(e.target.value)}
-                  placeholder="输入农场名称" 
+                  placeholder="Enter farm name" 
                   required 
                 />
               </div>
               
               <div className="form-group">
-                <label>元数据URI</label>
+                <label>Metadata URI</label>
                 <input 
                   type="text" 
                   value={farmMetadata} 
                   onChange={(e) => setFarmMetadata(e.target.value)}
-                  placeholder="输入元数据URI" 
+                  placeholder="Enter metadata URI" 
                   required 
                 />
               </div>
               
               <div className="form-group">
-                <label>所有者地址 (可选，默认为当前账户)</label>
+                <label>Owner Address (Optional, defaults to current account)</label>
                 <input 
                   type="text" 
                   value={ownerAddress} 
                   onChange={(e) => setOwnerAddress(e.target.value)}
-                  placeholder="输入所有者地址" 
+                  placeholder="Enter owner address" 
                 />
               </div>
               
@@ -369,7 +363,7 @@ export default function Home() {
                     checked={autoRegister} 
                     onChange={(e) => setAutoRegister(e.target.checked)}
                   />
-                  <label htmlFor="autoRegister">自动认证农场</label>
+                  <label htmlFor="autoRegister">Auto-register farm</label>
                 </div>
               )}
               
@@ -378,22 +372,22 @@ export default function Home() {
                 disabled={loading || !farmName || !farmMetadata}
                 className="submit-btn"
               >
-                {loading ? '创建中...' : '创建农场'}
+                {loading ? 'Creating...' : 'Create Farm'}
               </button>
             </form>
           </div>
           
           {isAuthority && contractReady && (
             <div className="card">
-              <h2>注册农场</h2>
+              <h2>Register Farm</h2>
               <form onSubmit={registerFarm}>
                 <div className="form-group">
-                  <label>农场合约地址</label>
+                  <label>Farm Contract Address</label>
                   <input 
                     type="text" 
                     value={farmAddress} 
                     onChange={(e) => setFarmAddress(e.target.value)}
-                    placeholder="输入农场合约地址" 
+                    placeholder="Enter farm contract address" 
                     required 
                   />
                 </div>
@@ -403,16 +397,16 @@ export default function Home() {
                   disabled={loading || !farmAddress}
                   className="submit-btn"
                 >
-                  {loading ? '注册中...' : '注册农场'}
+                  {loading ? 'Registering...' : 'Register Farm'}
                 </button>
               </form>
             </div>
           )}
           
           <div className="card">
-            <h2>我的农场</h2>
+            <h2>My Farms</h2>
             {loading ? (
-              <p>加载中...</p>
+              <p>Loading...</p>
             ) : farms.length > 0 ? (
               <div className="farms-list">
                 {farms.map(farm => (
@@ -423,20 +417,20 @@ export default function Home() {
                     </div>
                     <div className="farm-actions">
                       <div className={`farm-status ${farm.isRegistered ? 'registered' : 'unregistered'}`}>
-                        {farm.isRegistered ? '已认证' : '未认证'}
+                        {farm.isRegistered ? 'Registered' : 'Unregistered'}
                       </div>
                       <button 
                         onClick={() => viewFarmDetails(farm.address)} 
                         className="view-btn"
                       >
-                        查看详情
+                        View Details
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p>您还没有创建任何农场</p>
+              <p>You haven't created any farms yet</p>
             )}
           </div>
         </div>

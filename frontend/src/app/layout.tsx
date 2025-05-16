@@ -8,11 +8,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh">
+    <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>区块链农场管理系统</title>
+        <title>Blockchain Farm Management System</title>
       </head>
       <body>
         {children}

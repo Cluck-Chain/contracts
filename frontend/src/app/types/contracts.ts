@@ -1,29 +1,29 @@
-// 农场类型定义
+// Farm type definition
 export interface FarmInfo {
   name: string;
   metadataURI: string;
   isAuthorized: boolean;
 }
 
-// 认证中心类型定义
+// Registration center type definition
 export interface FarmRegistrationInfo {
-  address: string; // 农场合约地址
+  address: string; // Farm contract address
   isRegistered: boolean;
-  registrationDate?: string; // 可选字段，格式化后的日期字符串
+  registrationDate?: string; // Optional field, formatted date string
 }
 
-// 鸡信息类型定义
+// Chicken information type definition
 export interface ChickenInfo {
   id: number; // chickenId
-  birthTime: Date; // 从时间戳转换
+  birthTime: Date; // Converted from timestamp
   metadataURI: string;
   isAlive: boolean;
 }
 
-// 鸡蛋信息类型定义
+// Egg information type definition
 export interface EggInfo {
   id: number; // eggId
   chickenId: number;
-  birthTime: Date; // 从时间戳转换
+  birthTime: Date; // Converted from timestamp
   metadataURI: string;
 } 

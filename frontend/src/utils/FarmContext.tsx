@@ -62,7 +62,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 从本地存储加载用户创建的农场地址
+  // Load farm addresses from local storage
   useEffect(() => {
     if (isConnected && account) {
       const storedFarms = localStorage.getItem(`farms_${account}`);
@@ -73,7 +73,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     }
   }, [isConnected, account]);
 
-  // 加载农场数据
+  // Load farms data
   const loadFarmsData = async (farmAddresses: string[]) => {
     if (!isConnected) return;
     
@@ -103,20 +103,20 @@ export function FarmProvider({ children }: { children: ReactNode }) {
             isRegistered
           });
         } catch (err) {
-          console.error(`加载农场 ${address} 出错:`, err);
+          console.error(`Error loading farm ${address}:`, err);
         }
       }
       
       setFarms(loadedFarms);
     } catch (err) {
-      console.error('加载农场数据出错:', err);
-      setError('加载农场数据时出错');
+      console.error('Error loading farm data:', err);
+      setError('Error loading farm data');
     } finally {
       setLoading(false);
     }
   };
 
-  // 加载单个农场的详细数据
+  // Load details for a single farm
   const loadFarmDetails = async (farmAddress: string) => {
     if (!isConnected) return;
     
@@ -127,7 +127,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       const signer = await getSigner();
       const farmContract = getFarmContract(farmAddress, signer);
       
-      // 加载鸡数据
+      // Load chicken data
       const chickenCount = Number(await farmContract.chickenCount());
       const loadedChickens: ChickenData[] = [];
       
@@ -141,13 +141,13 @@ export function FarmProvider({ children }: { children: ReactNode }) {
             isAlive: chicken.isAlive
           });
         } catch (err) {
-          console.error(`加载鸡 ${i} 出错:`, err);
+          console.error(`Error loading chicken ${i}:`, err);
         }
       }
       
       setChickens(loadedChickens);
       
-      // 加载蛋数据
+      // Load egg data
       const eggCount = Number(await farmContract.eggCount());
       const loadedEggs: EggData[] = [];
       
@@ -161,20 +161,20 @@ export function FarmProvider({ children }: { children: ReactNode }) {
             metadataURI: egg.metadataURI
           });
         } catch (err) {
-          console.error(`加载蛋 ${i} 出错:`, err);
+          console.error(`Error loading egg ${i}:`, err);
         }
       }
       
       setEggs(loadedEggs);
     } catch (err) {
-      console.error('加载农场详情出错:', err);
-      setError('加载农场详情时出错');
+      console.error('Error loading farm details:', err);
+      setError('Error loading farm details');
     } finally {
       setLoading(false);
     }
   };
 
-  // 创建新农场
+  // Create new farm
   const createFarm = async (name: string, metadataURI: string, owner?: string) => {
     if (!isConnected || !account) return;
     
@@ -182,20 +182,20 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
-      // 获取所有者地址，如果没提供则使用当前账户
+      // Get owner address, use current account if not provided
       const signer = await getSigner();
       let ownerAddress = await signer.getAddress();
       
-      // 如果提供了owner参数并且是有效的以太坊地址，则使用它
+      // If owner parameter is provided and is a valid Ethereum address, use it
       if (owner && ethers.isAddress(owner)) {
         ownerAddress = owner;
       }
       
-      // 部署新的Farm合约 - 根据合约要求传递三个参数：owner, name, metadataURI
+      // Deploy new Farm contract - pass three parameters according to the contract: owner, name, metadataURI
       const farm = await deployFarm(ownerAddress, name, metadataURI);
       const farmAddress = await farm.getAddress();
       
-      // 保存农场地址到本地存储
+      // Save farm address to local storage
       const storedFarms = localStorage.getItem(`farms_${account}`) || '[]';
       const farmAddresses = JSON.parse(storedFarms) as string[];
       
@@ -204,18 +204,18 @@ export function FarmProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(`farms_${account}`, JSON.stringify(farmAddresses));
       }
       
-      // 重新加载农场数据
+      // Reload farm data
       await loadFarmsData(farmAddresses);
       
     } catch (err) {
-      console.error('创建农场出错:', err);
-      setError(err instanceof Error ? err.message : '创建农场时出错');
+      console.error('Error creating farm:', err);
+      setError(err instanceof Error ? err.message : 'Error creating farm');
     } finally {
       setLoading(false);
     }
   };
 
-  // 选择农场
+  // Select farm
   const selectFarm = async (farmAddress: string) => {
     if (!isConnected) return;
     
@@ -226,7 +226,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // 更新农场信息
+  // Update farm info
   const updateFarmInfo = async (name: string, metadataURI: string) => {
     if (!isConnected || !selectedFarm) return;
     
@@ -237,18 +237,18 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       const signer = await getSigner();
       const farmContract = getFarmContract(selectedFarm.address, signer);
       
-      // 根据合约只传递name和metadataURI两个参数
+      // Pass name and metadataURI to contract
       const tx = await farmContract.updateInfo(name, metadataURI);
       await tx.wait();
       
-      // 更新本地状态
+      // Update local state
       setSelectedFarm({
         ...selectedFarm,
         name,
         metadataURI
       });
       
-      // 更新farms数组中的相应农场
+      // Update farms array
       setFarms(farms.map(farm => 
         farm.address === selectedFarm.address 
           ? { ...farm, name, metadataURI } 
@@ -256,14 +256,14 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       ));
       
     } catch (err) {
-      console.error('更新农场信息出错:', err);
-      setError(err instanceof Error ? err.message : '更新农场信息时出错');
+      console.error('Error updating farm info:', err);
+      setError(err instanceof Error ? err.message : 'Error updating farm info');
     } finally {
       setLoading(false);
     }
   };
 
-  // 注册鸡
+  // Register chicken
   const registerChicken = async (metadataURI: string) => {
     if (!isConnected || !selectedFarm) return;
     
@@ -274,34 +274,34 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       const signer = await getSigner();
       const farmContract = getFarmContract(selectedFarm.address, signer);
       
-      // 根据合约只需要传递metadataURI参数
+      // Pass metadataURI to contract
       const tx = await farmContract.registerChicken(metadataURI);
       await tx.wait();
       
-      // 重新加载农场数据
+      // Reload farm data
       await loadFarmDetails(selectedFarm.address);
       
-      // 更新选中的农场数据
+      // Update selected farm data
       const updatedFarm = {
         ...selectedFarm,
         chickenCount: selectedFarm.chickenCount + 1
       };
       setSelectedFarm(updatedFarm);
       
-      // 更新farms数组中的相应农场
+      // Update farms array
       setFarms(farms.map(farm => 
         farm.address === selectedFarm.address ? updatedFarm : farm
       ));
       
     } catch (err) {
-      console.error('注册鸡出错:', err);
-      setError(err instanceof Error ? err.message : '注册鸡时出错');
+      console.error('Error registering chicken:', err);
+      setError(err instanceof Error ? err.message : 'Error registering chicken');
     } finally {
       setLoading(false);
     }
   };
 
-  // 注册蛋
+  // Register egg
   const registerEgg = async (chickenId: number, metadataURI: string) => {
     if (!isConnected || !selectedFarm) return;
     
@@ -312,34 +312,34 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       const signer = await getSigner();
       const farmContract = getFarmContract(selectedFarm.address, signer);
       
-      // 根据合约传递chickenId和metadataURI两个参数
+      // Pass chickenId and metadataURI to contract
       const tx = await farmContract.registerEgg(chickenId, metadataURI);
       await tx.wait();
       
-      // 重新加载农场数据
+      // Reload farm data
       await loadFarmDetails(selectedFarm.address);
       
-      // 更新选中的农场数据
+      // Update selected farm data
       const updatedFarm = {
         ...selectedFarm,
         eggCount: selectedFarm.eggCount + 1
       };
       setSelectedFarm(updatedFarm);
       
-      // 更新farms数组中的相应农场
+      // Update farms array
       setFarms(farms.map(farm => 
         farm.address === selectedFarm.address ? updatedFarm : farm
       ));
       
     } catch (err) {
-      console.error('注册蛋出错:', err);
-      setError(err instanceof Error ? err.message : '注册蛋时出错');
+      console.error('Error registering egg:', err);
+      setError(err instanceof Error ? err.message : 'Error registering egg');
     } finally {
       setLoading(false);
     }
   };
 
-  // 移除鸡
+  // Remove chicken
   const removeChicken = async (chickenId: number) => {
     if (!isConnected || !selectedFarm) return;
     
@@ -350,22 +350,22 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       const signer = await getSigner();
       const farmContract = getFarmContract(selectedFarm.address, signer);
       
-      // 根据合约传递chickenId参数
+      // Pass chickenId to contract
       const tx = await farmContract.removeChicken(chickenId);
       await tx.wait();
       
-      // 重新加载农场数据
+      // Reload farm data
       await loadFarmDetails(selectedFarm.address);
       
     } catch (err) {
-      console.error('移除鸡出错:', err);
-      setError(err instanceof Error ? err.message : '移除鸡时出错');
+      console.error('Error removing chicken:', err);
+      setError(err instanceof Error ? err.message : 'Error removing chicken');
     } finally {
       setLoading(false);
     }
   };
 
-  // 加载用户的农场
+  // Load user's farms
   const loadFarms = async () => {
     if (!isConnected || !account) return;
     

@@ -23,7 +23,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 连接钱包
+  // Connect wallet
   const connect = async () => {
     if (connecting) return;
     
@@ -32,7 +32,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     
     try {
       if (typeof window !== 'undefined' && window.ethereum) {
-        // 请求用户连接钱包
+        // Request user to connect wallet
         await window.ethereum.request({ method: 'eth_requestAccounts' });
         
         const address = await getCurrentUserAddress();
@@ -42,60 +42,60 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setIsConnected(true);
         setIsAuthority(authority);
       } else {
-        throw new Error('请安装MetaMask或其他以太坊钱包');
+        throw new Error('Please install MetaMask or another Ethereum wallet');
       }
     } catch (err) {
-      console.error('钱包连接错误:', err);
-      setError(err instanceof Error ? err.message : '连接钱包时出错');
+      console.error('Wallet connection error:', err);
+      setError(err instanceof Error ? err.message : 'Error connecting wallet');
     } finally {
       setConnecting(false);
     }
   };
 
-  // 断开钱包连接
+  // Disconnect wallet
   const disconnect = () => {
     setAccount(null);
     setIsConnected(false);
     setIsAuthority(false);
   };
 
-  // 监听账户变化
+  // Listen for account changes
   useEffect(() => {
     if (typeof window !== 'undefined' && window.ethereum) {
       const handleAccountsChanged = async (accounts: string[]) => {
         if (accounts.length === 0) {
-          // 用户断开了连接
+          // User disconnected
           disconnect();
         } else if (accounts[0] !== account) {
-          // 账户已更改
+          // Account has changed
           setAccount(accounts[0]);
           setIsConnected(true);
           
-          // 检查新账户的权限
+          // Check new account permissions
           try {
             const authority = await isUserAuthority();
             setIsAuthority(authority);
           } catch (err) {
-            console.error('检查权限时出错:', err);
+            console.error('Error checking permissions:', err);
           }
         }
       };
 
       const handleChainChanged = () => {
-        // 当链改变时，我们需要刷新页面
+        // When chain changes, we need to refresh the page
         window.location.reload();
       };
 
-      // 订阅事件
+      // Subscribe to events
       window.ethereum.on('accountsChanged', handleAccountsChanged);
       window.ethereum.on('chainChanged', handleChainChanged);
 
-      // 检查是否已经连接
+      // Check if already connected
       if (window.ethereum.selectedAddress) {
         connect();
       }
 
-      // 清理函数
+      // Cleanup function
       return () => {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
         window.ethereum.removeListener('chainChanged', handleChainChanged);

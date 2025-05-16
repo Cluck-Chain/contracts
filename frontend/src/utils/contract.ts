@@ -6,12 +6,12 @@ import {
   Farm
 } from '../typechain';
 
-// 预先设定的AuthorityCenter合约地址
-// 这个地址应该根据实际部署的合约地址来修改
-const AUTHORITY_CENTER_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // 请替换为实际部署的地址
+// Predefined AuthorityCenter contract address
+// This address should be updated with the actual deployed contract address
+const AUTHORITY_CENTER_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Please replace with the actual deployed address
 
 export async function getProvider() {
-  // 检查是否有以太坊提供者
+  // Check if Ethereum provider exists
   if (typeof window !== 'undefined' && window.ethereum) {
     return new ethers.BrowserProvider(window.ethereum);
   }
@@ -23,56 +23,56 @@ export async function getSigner() {
   return provider.getSigner();
 }
 
-// 连接到AuthorityCenter合约
+// Connect to AuthorityCenter contract
 export async function getAuthorityCenterContract(): Promise<AuthorityCenter> {
   const provider = await getProvider();
   return AuthorityCenter__factory.connect(AUTHORITY_CENTER_ADDRESS, provider);
 }
 
-// 获取AuthorityCenter合约与Signer连接（用于发送交易）
+// Get AuthorityCenter contract with Signer (for sending transactions)
 export async function getAuthorityCenterWithSigner(): Promise<AuthorityCenter> {
   const signer = await getSigner();
   return AuthorityCenter__factory.connect(AUTHORITY_CENTER_ADDRESS, signer);
 }
 
-// 部署新的Farm合约
+// Deploy new Farm contract
 export async function deployFarm(owner: string, name: string, metadataURI: string): Promise<Farm> {
   try {
     const signer = await getSigner();
     const farmFactory = new Farm__factory(signer);
     
-    // 添加部署选项，增加gas限制
+    // Add deployment options, increase gas limit
     const deployOptions = {
-      gasLimit: 3000000 // 提供足够的gas来部署合约
+      gasLimit: 3000000 // Provide enough gas to deploy the contract
     };
     
-    console.log("开始部署Farm合约...", { owner, name, metadataURI });
+    console.log("Starting Farm contract deployment...", { owner, name, metadataURI });
     const farm = await farmFactory.deploy(owner, name, metadataURI, deployOptions);
-    console.log("等待交易确认...");
+    console.log("Waiting for transaction confirmation...");
     await farm.waitForDeployment();
     
     const farmAddress = await farm.getAddress();
-    console.log("Farm合约已部署，地址:", farmAddress);
+    console.log("Farm contract deployed, address:", farmAddress);
     return farm;
   } catch (error: any) {
-    console.error("部署Farm合约失败:", error);
-    // 检查特定错误类型并提供更具体的错误信息
-    if (error.error.code === -32603) {
-      throw new Error("区块链节点内部错误，可能是gas不足或网络拥塞。请尝试增加MetaMask中的gas限制或稍后再试。");
-    } else if (error.error.code === 4001) {
-      throw new Error("用户取消了交易。");
+    console.error("Failed to deploy Farm contract:", error);
+    // Check specific error types and provide more detailed error messages
+    if (error.error && error.error.code === -32603) {
+      throw new Error("Blockchain node internal error, possibly due to insufficient gas or network congestion. Try increasing gas limit in MetaMask or try again later.");
+    } else if (error.error && error.error.code === 4001) {
+      throw new Error("User cancelled the transaction.");
     } else {
-      throw new Error("部署Farm合约失败: " + (error.message || "未知错误"));
+      throw new Error("Failed to deploy Farm contract: " + (error.message || "Unknown error"));
     }
   }
 }
 
-// 连接到现有的Farm合约
+// Connect to existing Farm contract
 export function getFarmContract(farmAddress: string, provider: ethers.ContractRunner): Farm {
   return Farm__factory.connect(farmAddress, provider);
 }
 
-// 注册Farm到AuthorityCenter
+// Register Farm to AuthorityCenter
 export async function registerFarmToAuthority(farmAddress: string): Promise<void> {
   try {
     const authorityWithSigner = await getAuthorityCenterWithSigner();
@@ -80,29 +80,29 @@ export async function registerFarmToAuthority(farmAddress: string): Promise<void
     await tx.wait();
   } catch (error) {
     console.error("registerFarmToAuthority error:", error);
-    throw new Error("注册农场失败，请确认合约已正确部署");
+    throw new Error("Failed to register farm, please verify the contract is correctly deployed");
   }
 }
 
-// 检查Farm是否已注册
+// Check if Farm is registered
 export async function isFarmRegistered(farmAddress: string): Promise<boolean> {
   try {
     const authority = await getAuthorityCenterContract();
     return await authority.isCertifiedFarm(farmAddress);
   } catch (error) {
     console.error("isFarmRegistered error:", error);
-    return false; // 出错时默认为未注册
+    return false; // Default to not registered on error
   }
 }
 
-// 获取当前用户地址
+// Get current user address
 export async function getCurrentUserAddress(): Promise<string> {
   const provider = await getProvider();
   const signer = await provider.getSigner();
   return signer.getAddress();
 }
 
-// 检查用户是否为权限中心的authority
+// Check if user is an authority in the authority center
 export async function isUserAuthority(): Promise<boolean> {
   try {
     const authority = await getAuthorityCenterContract();
@@ -110,11 +110,43 @@ export async function isUserAuthority(): Promise<boolean> {
     return await authority.isAuthority(userAddress);
   } catch (error) {
     console.error("isUserAuthority error:", error);
-    return false; // 出错时默认为非权限用户
+    return false; // Default to not an authority on error
   }
 }
 
-// 声明window.ethereum类型扩展
+// Get all farm addresses (via events)
+export async function getAllFarms(): Promise<string[]> {
+  try {
+    const authority = await getAuthorityCenterContract();
+    
+    const filter = authority.filters.FarmRegistered();
+    const events = await authority.queryFilter(filter);
+    
+    // Get all registered farms
+    const registeredFarms = events.map(event => {
+      if (event && 'args' in event && event.args) {
+        return event.args[0];
+      }
+      return null;
+    }).filter(Boolean) as string[];
+    
+    // Filter for currently certified farms
+    const certifiedFarms = [];
+    for (const farm of registeredFarms) {
+      const isCertified = await isFarmRegistered(farm);
+      if (isCertified) {
+        certifiedFarms.push(farm);
+      }
+    }
+    
+    return certifiedFarms;
+  } catch (error) {
+    console.error("getAllFarms error:", error);
+    return []; // Return empty array on error
+  }
+}
+
+// Declare window.ethereum type extension
 declare global {
   interface Window {
     ethereum?: any;

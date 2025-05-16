@@ -19,7 +19,7 @@ export function AuthorityManager() {
       await addAuthority(authorityAddress);
       setAuthorityAddress('');
     } catch (err) {
-      console.error('添加权限出错:', err);
+      console.error('Error adding authority:', err);
     }
   };
 
@@ -31,34 +31,34 @@ export function AuthorityManager() {
       await removeAuthority(removeAddress);
       setRemoveAddress('');
     } catch (err) {
-      console.error('移除权限出错:', err);
+      console.error('Error removing authority:', err);
     }
   };
 
   if (!isConnected) {
-    return <p>请先连接钱包</p>;
+    return <p>Please connect your wallet first</p>;
   }
 
   if (!isAuthority) {
-    return <p>您没有权限管理权限</p>;
+    return <p>You do not have permission to manage authorities</p>;
   }
 
   return (
     <div className="authority-manager">
-      <h2>权限管理</h2>
+      <h2>Authority Management</h2>
       
       <div className="authority-sections">
         <div className="section">
-          <h3>添加权限</h3>
+          <h3>Add Authority</h3>
           <form onSubmit={handleAddAuthority}>
             <div className="form-group">
-              <label htmlFor="authority-address">地址</label>
+              <label htmlFor="authority-address">Address</label>
               <input
                 id="authority-address"
                 type="text"
                 value={authorityAddress}
                 onChange={(e) => setAuthorityAddress(e.target.value)}
-                placeholder="输入要添加权限的地址"
+                placeholder="Enter address to add authority"
                 required
               />
             </div>
@@ -68,22 +68,22 @@ export function AuthorityManager() {
               disabled={loading || !authorityAddress}
               className="add-button"
             >
-              {loading ? '添加中...' : '添加权限'}
+              {loading ? 'Adding...' : 'Add Authority'}
             </button>
           </form>
         </div>
         
         <div className="section">
-          <h3>移除权限</h3>
+          <h3>Remove Authority</h3>
           <form onSubmit={handleRemoveAuthority}>
             <div className="form-group">
-              <label htmlFor="remove-address">地址</label>
+              <label htmlFor="remove-address">Address</label>
               <input
                 id="remove-address"
                 type="text"
                 value={removeAddress}
                 onChange={(e) => setRemoveAddress(e.target.value)}
-                placeholder="输入要移除权限的地址"
+                placeholder="Enter address to remove authority"
                 required
               />
             </div>
@@ -93,7 +93,7 @@ export function AuthorityManager() {
               disabled={loading || !removeAddress}
               className="remove-button"
             >
-              {loading ? '移除中...' : '移除权限'}
+              {loading ? 'Removing...' : 'Remove Authority'}
             </button>
           </form>
         </div>

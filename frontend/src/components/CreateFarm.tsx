@@ -19,10 +19,10 @@ export function CreateFarm() {
   const [showRegister, setShowRegister] = useState(false);
 
   const validateOwnerAddress = (address: string) => {
-    if (!address) return true; // 允许为空，表示使用当前账户
+    if (!address) return true; // Allow empty, meaning to use current account
     
     if (!ethers.isAddress(address)) {
-      setOwnerError('请输入有效的以太坊地址');
+      setOwnerError('Please enter a valid Ethereum address');
       return false;
     }
     
@@ -35,18 +35,18 @@ export function CreateFarm() {
     
     if (!name || !metadataURI) return;
     
-    // 验证所有者地址
+    // Validate owner address
     if (!validateOwnerAddress(owner)) return;
     
     try {
-      // 传递所有者地址，如果为空则使用当前账户
+      // Pass owner address, use current account if empty
       await createFarm(name, metadataURI, owner || undefined);
-      // 重置表单
+      // Reset form
       setName('');
       setMetadataURI('');
       setOwner('');
     } catch (err) {
-      console.error('创建农场出错:', err);
+      console.error('Error creating farm:', err);
     }
   };
 
@@ -56,45 +56,45 @@ export function CreateFarm() {
       setShowRegister(false);
       setFarmAddress(null);
     } catch (err) {
-      console.error('注册农场出错:', err);
+      console.error('Error registering farm:', err);
     }
   };
 
   if (!isConnected) {
-    return <p>请先连接钱包以创建农场</p>;
+    return <p>Please connect your wallet to create a farm</p>;
   }
 
   return (
     <div className="create-farm">
-      <h2>创建新农场</h2>
+      <h2>Create New Farm</h2>
       
       <form onSubmit={handleCreateFarm}>
         <div className="form-group">
-          <label htmlFor="farm-name">农场名称</label>
+          <label htmlFor="farm-name">Farm Name</label>
           <input
             id="farm-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="输入农场名称"
+            placeholder="Enter farm name"
             required
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="farm-metadata">元数据URI</label>
+          <label htmlFor="farm-metadata">Metadata URI</label>
           <input
             id="farm-metadata"
             type="text"
             value={metadataURI}
             onChange={(e) => setMetadataURI(e.target.value)}
-            placeholder="输入元数据URI (如IPFS地址)"
+            placeholder="Enter metadata URI (e.g., IPFS address)"
             required
           />
         </div>
         
         <div className="form-group">
-          <label htmlFor="farm-owner">农场所有者（可选）</label>
+          <label htmlFor="farm-owner">Farm Owner (Optional)</label>
           <input
             id="farm-owner"
             type="text"
@@ -103,7 +103,7 @@ export function CreateFarm() {
               setOwner(e.target.value);
               validateOwnerAddress(e.target.value);
             }}
-            placeholder={`留空使用当前账户 (${account?.slice(0, 6)}...${account?.slice(-4)})`}
+            placeholder={`Leave empty to use current account (${account?.slice(0, 6)}...${account?.slice(-4)})`}
           />
           {ownerError && <p className="field-error">{ownerError}</p>}
         </div>
@@ -113,24 +113,24 @@ export function CreateFarm() {
           disabled={loading || !name || !metadataURI || !!ownerError}
           className="create-button"
         >
-          {loading ? '创建中...' : '创建农场'}
+          {loading ? 'Creating...' : 'Create Farm'}
         </button>
       </form>
       
       {error && <p className="error-message">{error}</p>}
       
       <div className="register-section">
-        <h3>注册现有农场</h3>
-        <p>如果您已经创建了农场合约，可以将其注册到Authority中</p>
+        <h3>Register Existing Farm</h3>
+        <p>If you have already created a farm contract, you can register it with the Authority</p>
         
         <div className="form-group">
-          <label htmlFor="farm-address">农场合约地址</label>
+          <label htmlFor="farm-address">Farm Contract Address</label>
           <input
             id="farm-address"
             type="text"
             value={farmAddress || ''}
             onChange={(e) => setFarmAddress(e.target.value)}
-            placeholder="输入农场合约地址"
+            placeholder="Enter farm contract address"
           />
         </div>
         
@@ -139,7 +139,7 @@ export function CreateFarm() {
           disabled={!farmAddress || loading}
           className="register-button"
         >
-          注册到Authority
+          Register with Authority
         </button>
       </div>
       

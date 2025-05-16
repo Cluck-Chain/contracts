@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001"
   },
   webpack: (config, { isServer }) => {
-    // 允许webpack处理shared目录中的文件
+    // Allow webpack to process files in the shared directory
     config.resolve.alias = {
       ...config.resolve.alias,
       '@shared': path.resolve(__dirname, '../shared'),

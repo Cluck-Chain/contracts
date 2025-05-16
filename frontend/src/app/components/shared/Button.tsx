@@ -19,7 +19,6 @@ export function Button({
   disabled,
   ...rest
 }: ButtonProps) {
-  // 确定CSS类名
   const getButtonClass = () => {
     switch (variant) {
       case 'action':

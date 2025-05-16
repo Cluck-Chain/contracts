@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ethers } from 'ethers';
-import type { Farm } from '../../typechain/Farm';
 import FarmArtifact from '../../artifacts/contracts/Farm.sol/Farm.json';
 import { Button } from './shared/Button';
 import { FormField } from './shared/FormField';
@@ -12,7 +11,7 @@ import { getSignerContract } from '../hooks/useContract';
 import { useToast } from '../hooks/useToast';
 import styles from '../page.module.css';
 
-// 更新FarmInfo类型以匹配合约
+// Updated FarmInfo type to match the contract
 interface FarmInfo {
   name: string;
   metadataURI: string;
@@ -33,16 +32,16 @@ export default function FarmComponent({ provider, farmAddress }: FarmComponentPr
   
   const toast = useToast();
   
-  // 读取农场信息的合约调用
+  // Contract call to read farm information
   const { execute: fetchFarmInfo, isLoading } = useContractCall(async () => {
     if (!provider || !farmAddress) {
-      toast.showError('请先连接钱包并确认合约地址');
+      toast.showError('Please connect your wallet and confirm the contract address');
       return null;
     }
     
     const contract = await getSignerContract<any>(farmAddress, FarmArtifact.abi, provider);
     if (!contract) {
-      toast.showError('获取合约实例失败');
+      toast.showError('Failed to get contract instance');
       return null;
     }
     
@@ -59,7 +58,7 @@ export default function FarmComponent({ provider, farmAddress }: FarmComponentPr
         owner
       };
       
-      // 预填表单
+      // Pre-fill form
       setFormValues({
         name,
         metadataURI
@@ -67,45 +66,45 @@ export default function FarmComponent({ provider, farmAddress }: FarmComponentPr
       
       return info;
     } catch (err) {
-      console.error('获取农场信息失败:', err);
-      throw new Error('获取农场信息失败');
+      console.error('Failed to get farm information:', err);
+      throw new Error('Failed to get farm information');
     }
   });
   
-  // 更新农场信息的合约调用
+  // Contract call to update farm information
   const { execute: updateFarm, isLoading: isUpdating } = useContractCall(async () => {
     if (!provider || !farmAddress) {
-      toast.showError('请先连接钱包并确认合约地址');
+      toast.showError('Please connect your wallet and confirm the contract address');
       return null;
     }
     
     const { name, metadataURI } = formValues;
     
     if (!name || !metadataURI) {
-      toast.showError('请填写完整的农场信息');
+      toast.showError('Please fill in all farm information');
       return null;
     }
     
     const contract = await getSignerContract<any>(farmAddress, FarmArtifact.abi, provider);
     if (!contract) {
-      toast.showError('获取合约实例失败');
+      toast.showError('Failed to get contract instance');
       return null;
     }
     
     try {
-      // 注意: updateInfo在合约中只接受两个参数: name和metadataURI
+      // Note: updateInfo in the contract only accepts two parameters: name and metadataURI
       const tx = await contract.updateInfo(name, metadataURI);
       await tx.wait();
       
-      toast.showSuccess('农场信息更新成功');
+      toast.showSuccess('Farm information updated successfully');
       return true;
     } catch (err) {
-      console.error('更新农场信息失败:', err);
-      throw new Error('更新农场信息失败');
+      console.error('Failed to update farm information:', err);
+      throw new Error('Failed to update farm information');
     }
   });
   
-  // 加载农场信息
+  // Load farm information
   const loadFarmInfo = async () => {
     try {
       const info = await fetchFarmInfo();
@@ -113,11 +112,11 @@ export default function FarmComponent({ provider, farmAddress }: FarmComponentPr
         setFarmInfo(info);
       }
     } catch (error) {
-      toast.showError('读取农场信息失败');
+      toast.showError('Failed to read farm information');
     }
   };
   
-  // 处理表单输入变化
+  // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormValues(prev => ({
@@ -126,18 +125,17 @@ export default function FarmComponent({ provider, farmAddress }: FarmComponentPr
     }));
   };
   
-  // 处理更新信息
+  // Handle information update
   const handleUpdateInfo = async () => {
     try {
       await updateFarm();
-      // 重新加载信息
+      // Reload information
       loadFarmInfo();
     } catch (error) {
-      toast.showError('更新农场信息失败');
+      toast.showError('Failed to update farm information');
     }
   };
-
-  // 检查是否是农场所有者
+  // Check if user is the farm owner
   const isOwner = async (address: string): Promise<boolean> => {
     if (!provider || !farmAddress || !farmInfo) return false;
     
@@ -152,58 +150,58 @@ export default function FarmComponent({ provider, farmAddress }: FarmComponentPr
 
   return (
     <div className={styles.moduleContainer}>
-      <h2>农场管理</h2>
-      <p className={styles.addressInfo}>合约地址: {farmAddress}</p>
+      <h2>Farm Management</h2>
+      <p className={styles.addressInfo}>Contract Address: {farmAddress}</p>
 
       <div className={styles.contractActions}>
         <Button 
           onClick={loadFarmInfo} 
           isLoading={isLoading}
-          loadingText="加载中..."
+          loadingText="Loading..."
           variant="action"
         >
-          获取农场信息
+          Get Farm Info
         </Button>
       </div>
 
       {farmInfo && (
         <>
-          <SectionCard title="当前农场信息">
+          <SectionCard title="Current Farm Information">
             <DataDisplay>
-              <DataItem label="名称" value={farmInfo.name} />
-              <DataItem label="元数据URI" value={farmInfo.metadataURI} />
-              <DataItem label="所有者" value={farmInfo.owner} />
+              <DataItem label="Name" value={farmInfo.name} />
+              <DataItem label="Metadata URI" value={farmInfo.metadataURI} />
+              <DataItem label="Owner" value={farmInfo.owner} />
             </DataDisplay>
           </SectionCard>
 
-          <SectionCard title="更新农场信息">
+          <SectionCard title="Update Farm Information">
             <FormField
               id="name"
-              label="农场名称"
+              label="Farm Name"
               type="text"
               value={formValues.name}
               onChange={handleInputChange}
-              placeholder="请输入农场名称"
+              placeholder="Please enter farm name"
             />
             <FormField
               id="metadataURI"
-              label="元数据URI"
+              label="Metadata URI" 
               type="text"
               value={formValues.metadataURI}
               onChange={handleInputChange}
-              placeholder="请输入元数据URI"
+              placeholder="Please enter metadata URI"
             />
             <Button
               onClick={handleUpdateInfo}
               isLoading={isUpdating}
-              loadingText="更新中..."
+              loadingText="Updating..."
               variant="submit"
             >
-              更新信息
+              Update Information
             </Button>
           </SectionCard>
         </>
       )}
     </div>
   );
-} 
+}

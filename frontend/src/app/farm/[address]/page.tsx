@@ -1,47 +1,44 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ethers } from 'ethers';
 import { 
   getSigner, 
   getFarmContract, 
   isFarmRegistered
 } from '../../../utils/contract';
 
-// 定义Params类型
+// Define Params type
 type PageParams = {
   address: string;
 };
 
 export default function FarmPage({ params }: { params: PageParams | Promise<PageParams> }) {
-  const router = useRouter();
-  // 使用React.use()解包params
+  // Use React.use() to unwrap params
   const unwrappedParams = React.use(params as Promise<PageParams>) as PageParams;
   const farmAddress = unwrappedParams.address;
   
-  // 农场信息状态
+  // Farm information state
   const [farmName, setFarmName] = useState('');
   const [farmOwner, setFarmOwner] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   
-  // 鸡和蛋的状态
+  // Chicken and egg state
   const [chickens, setChickens] = useState<{id: number, birthTime: bigint, metadataURI: string, isAlive: boolean}[]>([]);
   const [eggs, setEggs] = useState<{id: number, chickenId: bigint, birthTime: bigint, metadataURI: string}[]>([]);
   
-  // 表单状态
+  // Form state
   const [chickenMetadata, setChickenMetadata] = useState('');
   const [selectedChicken, setSelectedChicken] = useState<number | null>(null);
   const [eggMetadata, setEggMetadata] = useState('');
   
-  // 加载状态
+  // Loading state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // 加载农场信息
+  // Load farm information
   useEffect(() => {
     async function loadFarmData() {
       try {
@@ -52,7 +49,7 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
         const signerAddress = await signer.getAddress();
         const farm = getFarmContract(farmAddress, signer);
         
-        // 加载基本信息
+        // Load basic information
         const name = await farm.name();
         const owner = await farm.owner();
         
@@ -60,16 +57,16 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
         setFarmOwner(owner);
         setIsOwner(owner.toLowerCase() === signerAddress.toLowerCase());
         
-        // 检查注册状态
+        // Check registration status
         try {
           const registered = await isFarmRegistered(farmAddress);
           setIsRegistered(registered);
         } catch (err) {
-          console.error("检查注册状态出错:", err);
-          // 继续执行，不中断加载流程
+          console.error("Error checking registration status:", err);
+          // Continue execution, don't interrupt loading process
         }
         
-        // 加载鸡的数据
+        // Load chicken data
         const chickenCount = await farm.chickenCount();
         const chickenPromises = [];
         
@@ -87,7 +84,7 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
         
         setChickens(chickenData);
         
-        // 加载蛋的数据
+        // Load egg data
         const eggCount = await farm.eggCount();
         const eggPromises = [];
         
@@ -106,8 +103,8 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
         setEggs(eggData);
         
       } catch (err) {
-        console.error("加载农场数据出错:", err);
-        setError("加载农场数据失败，请确认合约地址是否正确: " + (err instanceof Error ? err.message : '未知错误'));
+        console.error("Error loading farm data:", err);
+        setError("Failed to load farm data, please confirm the contract address is correct: " + (err instanceof Error ? err.message : 'Unknown error'));
       } finally {
         setLoading(false);
       }
@@ -118,7 +115,7 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
     }
   }, [farmAddress]);
 
-  // 添加新鸡
+  // Add new chicken
   const addChicken = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chickenMetadata || !isOwner) return;
@@ -133,17 +130,17 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
       const tx = await farm.registerChicken(chickenMetadata);
       await tx.wait();
       
-      // 刷新页面以显示新鸡
+      // Refresh page to show new chicken
       window.location.reload();
     } catch (err) {
-      console.error("添加鸡出错:", err);
-      setError("添加鸡失败: " + (err instanceof Error ? err.message : '未知错误'));
+      console.error("Error adding chicken:", err);
+      setError("Failed to add chicken: " + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setActionLoading(false);
     }
   };
 
-  // 添加鸡蛋
+  // Add egg
   const addEgg = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!eggMetadata || selectedChicken === null || !isOwner) return;
@@ -158,17 +155,17 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
       const tx = await farm.registerEgg(selectedChicken, eggMetadata);
       await tx.wait();
       
-      // 刷新页面以显示新蛋
+      // Refresh page to show new egg
       window.location.reload();
     } catch (err) {
-      console.error("添加鸡蛋出错:", err);
-      setError("添加鸡蛋失败: " + (err instanceof Error ? err.message : '未知错误'));
+      console.error("Error adding egg:", err);
+      setError("Failed to add egg: " + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setActionLoading(false);
     }
   };
 
-  // 移除鸡
+  // Remove chicken
   const removeChicken = async (chickenId: number) => {
     if (!isOwner) return;
     
@@ -182,17 +179,17 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
       const tx = await farm.removeChicken(chickenId);
       await tx.wait();
       
-      // 刷新页面以更新鸡的状态
+      // Refresh page to update chicken status
       window.location.reload();
     } catch (err) {
-      console.error(`移除鸡 #${chickenId} 出错:`, err);
-      setError(`移除鸡 #${chickenId} 失败: ` + (err instanceof Error ? err.message : '未知错误'));
+      console.error(`Error removing chicken #${chickenId}:`, err);
+      setError(`Failed to remove chicken #${chickenId}: ` + (err instanceof Error ? err.message : 'Unknown error'));
     } finally {
       setActionLoading(false);
     }
   };
   
-  // 格式化时间戳
+  // Format timestamp
   const formatTime = (timestamp: bigint) => {
     const date = new Date(Number(timestamp) * 1000);
     return date.toLocaleString();
@@ -203,16 +200,16 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
       <header>
         <div className="header-content">
           <Link href="/" className="back-link">
-            返回首页
+            Back to Home
           </Link>
-          <h1>{farmName || "农场详情"}</h1>
+          <h1>{farmName || "Farm Details"}</h1>
           <div className="farm-info">
-            <p className="farm-address">合约地址: {farmAddress}</p>
-            <p className="farm-owner">所有者: {farmOwner?.slice(0,6)}...{farmOwner?.slice(-4)}</p>
+            <p className="farm-address">Contract Address: {farmAddress}</p>
+            <p className="farm-owner">Owner: {farmOwner?.slice(0,6)}...{farmOwner?.slice(-4)}</p>
             <div className={`farm-status ${isRegistered ? 'registered' : 'unregistered'}`}>
-              {isRegistered ? '已认证' : '未认证'}
+              {isRegistered ? 'Registered' : 'Unregistered'}
             </div>
-            {isOwner && <div className="owner-badge">农场主</div>}
+            {isOwner && <div className="owner-badge">Farm Owner</div>}
           </div>
         </div>
       </header>
@@ -220,23 +217,23 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
       {error && <div className="error-message">{error}</div>}
       
       {loading ? (
-        <div className="loading">加载农场数据中...</div>
+        <div className="loading">Loading farm data...</div>
       ) : (
         <div className="main-content">
-          {/* 鸡管理部分 */}
+          {/* Chicken Management Section */}
           <div className="card">
-            <h2>鸡的管理</h2>
+            <h2>Chicken Management</h2>
             
             {isOwner && (
               <form onSubmit={addChicken} className="add-form">
-                <h3>添加新鸡</h3>
+                <h3>Add New Chicken</h3>
                 <div className="form-group">
-                  <label>鸡的元数据URI</label>
+                  <label>Chicken Metadata URI</label>
                   <input 
                     type="text" 
                     value={chickenMetadata} 
                     onChange={(e) => setChickenMetadata(e.target.value)}
-                    placeholder="输入元数据URI" 
+                    placeholder="Enter metadata URI" 
                     required 
                   />
                 </div>
@@ -246,24 +243,24 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
                   disabled={actionLoading || !chickenMetadata}
                   className="submit-btn"
                 >
-                  {actionLoading ? '添加中...' : '添加鸡'}
+                  {actionLoading ? 'Adding...' : 'Add Chicken'}
                 </button>
               </form>
             )}
             
             <div className="list-section">
-              <h3>鸡列表</h3>
+              <h3>Chicken List</h3>
               {chickens.length > 0 ? (
                 <div className="items-list">
                   {chickens.map(chicken => (
                     <div key={chicken.id} className={`item-card ${!chicken.isAlive ? 'inactive' : ''}`}>
                       <div className="item-info">
-                        <h4>鸡 #{chicken.id}</h4>
-                        <p>出生时间: {formatTime(chicken.birthTime)}</p>
-                        <p className="metadata">元数据: {chicken.metadataURI}</p>
+                        <h4>Chicken #{chicken.id}</h4>
+                        <p>Birth Time: {formatTime(chicken.birthTime)}</p>
+                        <p className="metadata">Metadata: {chicken.metadataURI}</p>
                         <p className="status">
-                          状态: <span className={chicken.isAlive ? 'alive' : 'removed'}>
-                            {chicken.isAlive ? '活跃' : '已移除'}
+                          Status: <span className={chicken.isAlive ? 'alive' : 'removed'}>
+                            {chicken.isAlive ? 'Active' : 'Removed'}
                           </span>
                         </p>
                       </div>
@@ -274,38 +271,38 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
                           disabled={actionLoading}
                           className="action-btn remove-btn"
                         >
-                          移除
+                          Remove
                         </button>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="empty-message">农场中还没有鸡</p>
+                <p className="empty-message">No chickens in the farm yet</p>
               )}
             </div>
           </div>
           
-          {/* 蛋管理部分 */}
+          {/* Egg Management Section */}
           <div className="card">
-            <h2>鸡蛋管理</h2>
+            <h2>Egg Management</h2>
             
             {isOwner && chickens.filter(c => c.isAlive).length > 0 && (
               <form onSubmit={addEgg} className="add-form">
-                <h3>添加新鸡蛋</h3>
+                <h3>Add New Egg</h3>
                 <div className="form-group">
-                  <label>选择鸡</label>
+                  <label>Select Chicken</label>
                   <select 
                     value={selectedChicken || ''} 
                     onChange={(e) => setSelectedChicken(Number(e.target.value))}
                     required
                   >
-                    <option value="">请选择一只鸡</option>
+                    <option value="">Please select a chicken</option>
                     {chickens
                       .filter(chicken => chicken.isAlive)
                       .map(chicken => (
                         <option key={chicken.id} value={chicken.id}>
-                          鸡 #{chicken.id}
+                          Chicken #{chicken.id}
                         </option>
                       ))
                     }
@@ -313,12 +310,12 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
                 </div>
                 
                 <div className="form-group">
-                  <label>鸡蛋元数据URI</label>
+                  <label>Egg Metadata URI</label>
                   <input 
                     type="text" 
                     value={eggMetadata} 
                     onChange={(e) => setEggMetadata(e.target.value)}
-                    placeholder="输入元数据URI" 
+                    placeholder="Enter metadata URI" 
                     required 
                   />
                 </div>
@@ -328,28 +325,28 @@ export default function FarmPage({ params }: { params: PageParams | Promise<Page
                   disabled={actionLoading || !eggMetadata || selectedChicken === null}
                   className="submit-btn"
                 >
-                  {actionLoading ? '添加中...' : '添加鸡蛋'}
+                  {actionLoading ? 'Adding...' : 'Add Egg'}
                 </button>
               </form>
             )}
             
             <div className="list-section">
-              <h3>鸡蛋列表</h3>
+              <h3>Egg List</h3>
               {eggs.length > 0 ? (
                 <div className="items-list">
                   {eggs.map(egg => (
                     <div key={egg.id} className="item-card">
                       <div className="item-info">
-                        <h4>鸡蛋 #{egg.id}</h4>
-                        <p>来自鸡 #{egg.chickenId}</p>
-                        <p>产蛋时间: {formatTime(egg.birthTime)}</p>
-                        <p className="metadata">元数据: {egg.metadataURI}</p>
+                        <h4>Egg #{egg.id}</h4>
+                        <p>From Chicken #{egg.chickenId}</p>
+                        <p>Laid Time: {formatTime(egg.birthTime)}</p>
+                        <p className="metadata">Metadata: {egg.metadataURI}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="empty-message">农场中还没有鸡蛋</p>
+                <p className="empty-message">No eggs in the farm yet</p>
               )}
             </div>
           </div>

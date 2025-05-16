@@ -18,21 +18,21 @@ export function FarmDetail() {
   const [farmMetadataURI, setFarmMetadataURI] = useState('');
 
   if (!isConnected) {
-    return <p>请先连接钱包</p>;
+    return <p>Please connect your wallet first</p>;
   }
 
   if (!selectedFarm) {
-    return <p>请选择一个农场</p>;
+    return <p>Please select a farm</p>;
   }
 
-  // 过滤出活着的鸡
+  // Filter live chickens
   const aliveChickens = chickens.filter(chicken => chicken.isAlive);
 
   const handleRegisterFarm = async () => {
     try {
       await registerFarm(selectedFarm.address);
     } catch (err) {
-      console.error('注册农场出错:', err);
+      console.error('Error registering farm:', err);
     }
   };
 
@@ -44,7 +44,7 @@ export function FarmDetail() {
       await registerChicken(chickenURI);
       setChickenURI('');
     } catch (err) {
-      console.error('添加鸡出错:', err);
+      console.error('Error adding chicken:', err);
     }
   };
 
@@ -57,7 +57,7 @@ export function FarmDetail() {
       setEggURI('');
       setSelectedChickenId(null);
     } catch (err) {
-      console.error('添加蛋出错:', err);
+      console.error('Error adding egg:', err);
     }
   };
 
@@ -65,7 +65,7 @@ export function FarmDetail() {
     try {
       await removeChicken(chickenId);
     } catch (err) {
-      console.error('移除鸡出错:', err);
+      console.error('Error removing chicken:', err);
     }
   };
 
@@ -77,7 +77,7 @@ export function FarmDetail() {
       await updateFarmInfo(farmName, farmMetadataURI);
       setShowEditMode(false);
     } catch (err) {
-      console.error('更新农场信息出错:', err);
+      console.error('Error updating farm info:', err);
     }
   };
 
@@ -92,8 +92,8 @@ export function FarmDetail() {
       <div className="farm-header">
         <div>
           <h2>{selectedFarm.name}</h2>
-          <p className="farm-address">地址: {selectedFarm.address}</p>
-          <p className="farm-metadata">元数据URI: {selectedFarm.metadataURI}</p>
+          <p className="farm-address">Address: {selectedFarm.address}</p>
+          <p className="farm-metadata">Metadata URI: {selectedFarm.metadataURI}</p>
           
           {!selectedFarm.isRegistered && isAuthority && (
             <button 
@@ -101,7 +101,7 @@ export function FarmDetail() {
               disabled={authorityLoading}
               className="register-button"
             >
-              {authorityLoading ? '注册中...' : '注册此农场'}
+              {authorityLoading ? 'Registering...' : 'Register this Farm'}
             </button>
           )}
         </div>
@@ -110,16 +110,16 @@ export function FarmDetail() {
           onClick={startEditMode}
           className="edit-button"
         >
-          编辑农场信息
+          Edit Farm Info
         </button>
       </div>
       
       {showEditMode && (
         <div className="edit-farm">
-          <h3>编辑农场信息</h3>
+          <h3>Edit Farm Information</h3>
           <form onSubmit={handleUpdateFarmInfo}>
             <div className="form-group">
-              <label htmlFor="edit-name">农场名称</label>
+              <label htmlFor="edit-name">Farm Name</label>
               <input
                 id="edit-name"
                 type="text"
@@ -130,7 +130,7 @@ export function FarmDetail() {
             </div>
             
             <div className="form-group">
-              <label htmlFor="edit-metadata">元数据URI</label>
+              <label htmlFor="edit-metadata">Metadata URI</label>
               <input
                 id="edit-metadata"
                 type="text"
@@ -145,14 +145,14 @@ export function FarmDetail() {
                 type="submit" 
                 className="save-button"
               >
-                保存
+                Save
               </button>
               <button 
                 type="button" 
                 onClick={() => setShowEditMode(false)}
                 className="cancel-button"
               >
-                取消
+                Cancel
               </button>
             </div>
           </form>
@@ -161,7 +161,7 @@ export function FarmDetail() {
       
       <div className="farm-sections">
         <div className="section">
-          <h3>鸡 ({aliveChickens.length})</h3>
+          <h3>Chickens ({aliveChickens.length})</h3>
           
           <form onSubmit={handleAddChicken} className="add-form">
             <div className="form-row">
@@ -169,7 +169,7 @@ export function FarmDetail() {
                 type="text"
                 value={chickenURI}
                 onChange={(e) => setChickenURI(e.target.value)}
-                placeholder="元数据URI"
+                placeholder="Metadata URI"
                 className="form-input"
               />
               <button 
@@ -177,7 +177,7 @@ export function FarmDetail() {
                 disabled={!chickenURI}
                 className="add-button"
               >
-                添加鸡
+                Add Chicken
               </button>
             </div>
           </form>
@@ -188,56 +188,57 @@ export function FarmDetail() {
                 <div key={chicken.id} className="list-item">
                   <div>
                     <span className="item-id">#{chicken.id}</span>
-                    <span className="item-date">出生: {chicken.birthTime.toLocaleDateString()}</span>
+                    <span className="item-date">Birth: {chicken.birthTime.toLocaleDateString()}</span>
                     <span className="item-uri">{chicken.metadataURI}</span>
                   </div>
                   <button 
                     onClick={() => handleRemoveChicken(chicken.id)}
                     className="remove-button"
                   >
-                    移除
+                    Remove
                   </button>
                 </div>
               ))
             ) : (
-              <p className="empty-message">暂无鸡</p>
+              <p className="empty-message">No chickens yet. Add your first chicken!</p>
             )}
           </div>
         </div>
         
         <div className="section">
-          <h3>蛋 ({eggs.length})</h3>
+          <h3>Eggs ({eggs.length})</h3>
           
           <form onSubmit={handleAddEgg} className="add-form">
-            <div className="form-group">
+            <div className="form-row">
               <select
                 value={selectedChickenId || ''}
-                onChange={(e) => setSelectedChickenId(Number(e.target.value))}
+                onChange={(e) => setSelectedChickenId(Number(e.target.value) || null)}
                 className="form-select"
+                required
               >
-                <option value="">选择鸡</option>
-                {aliveChickens.map((chicken) => (
+                <option value="">Select Chicken</option>
+                {aliveChickens.map(chicken => (
                   <option key={chicken.id} value={chicken.id}>
-                    #{chicken.id}
+                    Chicken #{chicken.id}
                   </option>
                 ))}
               </select>
-            </div>
-            
-            <div className="form-row">
+              
               <input
                 type="text"
                 value={eggURI}
                 onChange={(e) => setEggURI(e.target.value)}
-                placeholder="元数据URI"
+                placeholder="Metadata URI"
                 className="form-input"
+                required
               />
+              
               <button 
                 type="submit"
                 disabled={!eggURI || !selectedChickenId}
                 className="add-button"
               >
-                添加蛋
+                Add Egg
               </button>
             </div>
           </form>
@@ -248,14 +249,14 @@ export function FarmDetail() {
                 <div key={egg.id} className="list-item">
                   <div>
                     <span className="item-id">#{egg.id}</span>
-                    <span className="item-parent">来自鸡 #{egg.chickenId}</span>
-                    <span className="item-date">出生: {egg.birthTime.toLocaleDateString()}</span>
+                    <span className="item-relation">From Chicken #{egg.chickenId}</span>
+                    <span className="item-date">Laid: {egg.birthTime.toLocaleDateString()}</span>
                     <span className="item-uri">{egg.metadataURI}</span>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="empty-message">暂无蛋</p>
+              <p className="empty-message">No eggs yet.</p>
             )}
           </div>
         </div>
@@ -434,7 +435,7 @@ export function FarmDetail() {
           color: #2c3e50;
         }
         
-        .item-parent, .item-date {
+        .item-relation, .item-date {
           font-size: 0.9rem;
           color: #7f8c8d;
         }
