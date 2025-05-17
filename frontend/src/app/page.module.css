@@ -11,11 +11,18 @@
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
+  --card-bg: white;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --input-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --text-color: #333;
+  --border-radius: 0.5rem;
 
   display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100svh;
   font-family: var(--font-geist-sans);
+  color: var(--text-color);
+  background-color: #f9fafb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,6 +35,11 @@
     --button-secondary-hover: #1a1a1a;
     --primary-color: #60a5fa;
     --primary-hover: #93c5fd;
+    --card-bg: #1f2937;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --input-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --text-color: #f3f4f6;
+    background-color: #111827;
   }
 }
 
@@ -37,55 +49,89 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: var(--gray-alpha-100);
+  background-color: var(--card-bg);
   border-bottom: 1px solid var(--gray-alpha-200);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(5px);
 }
 
 .navbarBrand h1 {
   margin: 0;
   font-size: 1.5rem;
+  background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
 }
 
 .navbarTabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .navbarTab {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.25rem;
   border: none;
   background: none;
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius);
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .navbarTab:hover {
   background-color: var(--gray-alpha-100);
+  transform: translateY(-2px);
 }
 
 .navbarTabActive {
   background-color: var(--primary-color);
   color: white;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
 }
 
 .navbarTabActive:hover {
   background-color: var(--primary-hover);
 }
 
+.navbarTabActive::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: white;
+  transform: scaleX(0.7);
+  transition: transform 0.3s ease;
+}
+
+.navbarTabActive:hover::after {
+  transform: scaleX(1);
+}
+
 .connectWalletButton {
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 0.25rem;
-  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1.25rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
 }
 
 .connectWalletButton:hover:not(:disabled) {
   background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(59, 130, 246, 0.3);
 }
 
 .connectWalletButton:disabled {
@@ -95,25 +141,29 @@
 
 /* 已连接钱包样式 */
 .connectedWallet {
-  background-color: var(--success-color);
+  background: linear-gradient(135deg, var(--success-color), #059669);
   display: flex;
   align-items: center;
   font-family: monospace;
   font-weight: 500;
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+  transition: all 0.3s ease;
 }
 
 .connectedWallet:hover {
-  background-color: var(--danger-color);
+  background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(239, 68, 68, 0.3);
 }
 
 .connectedWallet::before {
   content: "";
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background-color: #ffffff;
   border-radius: 50%;
-  margin-right: 8px;
+  margin-right: 10px;
   animation: pulse 2s infinite;
 }
 
@@ -122,7 +172,7 @@
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
@@ -144,6 +194,11 @@
   justify-content: center;
   min-height: 50vh;
   text-align: center;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  padding: 2rem;
+  margin: 2rem 0;
 }
 
 /* 模块容器 */
@@ -153,188 +208,280 @@
 
 .moduleContainer h2 {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   font-size: 1.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--gray-alpha-200);
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--primary-color);
+  color: var(--text-color);
+  position: relative;
+}
+
+.moduleContainer h2::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background-color: var(--success-color);
+}
+
+.description {
+  margin-bottom: 1.5rem;
+  color: var(--secondary-color);
+  line-height: 1.6;
 }
 
 /* 地址和账户信息 */
 .addressInfo, .accountInfo {
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  background-color: var(--gray-alpha-100);
-  border-radius: 0.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
   font-family: monospace;
+  box-shadow: var(--card-shadow);
+  border-left: 4px solid var(--primary-color);
+  transition: all 0.3s ease;
+}
+
+.addressInfo:hover, .accountInfo:hover {
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .ownerTag, .authorityTag {
-  margin-left: 0.5rem;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
+  margin-left: 0.75rem;
+  padding: 0.2rem 0.75rem;
+  border-radius: 1rem;
   font-size: 0.75rem;
   font-weight: bold;
+  display: inline-block;
+  transition: all 0.3s ease;
 }
 
 .ownerTag {
-  background-color: var(--success-color);
+  background: linear-gradient(135deg, var(--success-color), #059669);
   color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
 .authorityTag {
-  background-color: var(--warning-color);
+  background: linear-gradient(135deg, var(--warning-color), #d97706);
   color: white;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
 }
 
 /* 数据部分 */
 .dataSection {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: var(--gray-alpha-100);
-  border-radius: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.dataSection:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .dataSection h3, .dataSection h4 {
   margin-top: 0;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
 }
 
 .dataGrid {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .dataRow {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 140px 1fr;
   align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.dataRow:hover {
+  background-color: var(--gray-alpha-100);
 }
 
 .dataLabel {
   font-weight: 500;
+  color: var(--secondary-color);
 }
 
 .dataValue {
   font-family: monospace;
   word-break: break-all;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--gray-alpha-100);
+  border-radius: 0.25rem;
 }
 
 /* 表单部分 */
 .sectionCard {
-  margin-bottom: 1.5rem;
-  padding: 1.25rem;
-  background-color: var(--gray-alpha-100);
-  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.sectionCard:hover {
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .sectionCard h3, .sectionCard h4 {
   margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--gray-alpha-200);
+  padding-bottom: 0.5rem;
 }
 
 .formGroup {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .formLabel {
   display: block;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.5rem;
   font-weight: 500;
+  color: var(--text-color);
 }
 
 .formInput {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid var(--gray-alpha-200);
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius);
   background-color: transparent;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: var(--input-shadow);
+  color: var(--text-color);
 }
 
 .formInput:focus {
   outline: none;
   border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
 /* 按钮样式 */
 .actionButton, .submitButton {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   border: none;
-  border-radius: 0.25rem;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  transition: background-color 0.2s;
-  margin-right: 0.5rem;
+  transition: all 0.3s ease;
+  margin-right: 0.75rem;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
 }
 
 .actionButton {
-  background-color: var(--secondary-color);
+  background: linear-gradient(135deg, var(--secondary-color), #4b5563);
   color: white;
+  box-shadow: 0 4px 6px rgba(107, 114, 128, 0.25);
 }
 
 .actionButton:hover:not(:disabled) {
-  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(107, 114, 128, 0.3);
 }
 
 .submitButton {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, var(--primary-color), #2563eb);
   color: white;
   font-weight: 500;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
 }
 
 .submitButton:hover:not(:disabled) {
-  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(59, 130, 246, 0.3);
 }
 
 .actionButton:disabled, .submitButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .buttonGroup {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.actionContainer {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* 标签页容器 */
 .tabContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
 }
 
 .tabSection {
   display: flex;
   flex-direction: column;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.tabSection:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .tabHeader {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .tabHeader h3 {
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
   border-bottom: 2px solid var(--primary-color);
   margin-top: 0;
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
 /* 后端信息 */
 .backendInfo {
-  margin-top: 2rem;
-  padding: 0.5rem;
+  margin-top: 2.5rem;
+  padding: 0.75rem;
   font-size: 0.75rem;
   opacity: 0.7;
   border-top: 1px solid var(--gray-alpha-200);
+  text-align: center;
 }
 
 /* 页脚 */
 .footer {
   text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
+  padding: 1.5rem;
+  margin-top: 2.5rem;
   font-size: 0.875rem;
   color: var(--secondary-color);
   border-top: 1px solid var(--gray-alpha-200);
+  background-color: var(--card-bg);
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* 响应式设计 */
@@ -365,6 +512,10 @@
   .dataLabel {
     margin-bottom: 0.25rem;
   }
+  
+  .sectionCard, .dataSection {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -372,8 +523,562 @@
     flex-direction: column;
   }
   
-  .actionButton {
+  .actionButton, .submitButton {
     margin-right: 0;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    width: 100%;
   }
+  
+  .navbarTab {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+.fullWidthButton {
+  width: 100%;
+  margin-right: 0;
+  margin-top: 0.5rem;
+}
+
+.deploymentInfo {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: var(--gray-alpha-100);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--success-color);
+}
+
+.addressText {
+  font-family: monospace;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.infoText {
+  margin-bottom: 1rem;
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Farm列表页面样式 */
+.pageHeader {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1.5rem;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.headerContent h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+}
+
+.headerActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.navLink {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navLink:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.farmList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.farmItem {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.farmItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.farmItemContent {
+  flex: 1;
+}
+
+.farmName {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: var(--text-color);
+}
+
+.farmAddress {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+  font-family: monospace;
+}
+
+.farmItemActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.viewButton {
+  background: linear-gradient(135deg, var(--primary-color), #2563eb);
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.viewButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+}
+
+.removeButton {
+  background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.removeButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.25);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  background-color: var(--gray-alpha-100);
+  border-radius: var(--border-radius);
+  color: var(--secondary-color);
+}
+
+.loadingText {
+  text-align: center;
+  padding: 2rem;
+  color: var(--secondary-color);
+  font-style: italic;
+}
+
+/* Farm详情页面样式 */
+.farmStatusInfo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statusRegistered {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.statusUnregistered {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.itemGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.itemCard {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  padding: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.itemCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.itemTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  color: var(--text-color);
+}
+
+.metadataUri {
+  font-family: monospace;
+  font-size: 0.875rem;
+  word-break: break-all;
+  background-color: var(--gray-alpha-100);
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  margin-top: 0.5rem;
+}
+
+.formSection {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-alpha-200);
+}
+
+.formSection h4 {
+  margin: 0 0 1rem 0;
+  color: var(--primary-color);
+}
+
+/* Toast通知样式 */
+.toastContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 350px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  border-left: 4px solid;
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.toastVisible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toastHidden {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.toastInfo {
+  border-left-color: var(--primary-color);
+}
+
+.toastSuccess {
+  border-left-color: var(--success-color);
+}
+
+.toastError {
+  border-left-color: var(--danger-color);
+}
+
+.toastWarning {
+  border-left-color: var(--warning-color);
+}
+
+.toastIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.toastSuccess .toastIcon {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.toastError .toastIcon {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.toastWarning .toastIcon {
+  background-color: var(--warning-color);
+  color: white;
+}
+
+.toastInfo .toastIcon {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.toastMessage {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.toastClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 12px;
+  color: var(--secondary-color);
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.toastClose:hover {
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 鸡和鸡蛋管理样式 */
+.chickenManagementContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.chickenListSection {
+  width: 100%;
+}
+
+.chickenList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.chickenItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f3f4f6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid #4a90e2;
+}
+
+.chickenItem:hover {
+  background-color: #edf2f7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.selectedChicken {
+  background-color: #e6f7ff;
+  border-left: 4px solid #1890ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+}
+
+.inactiveChicken {
+  opacity: 0.6;
+  border-left: 4px solid #aaa;
+  cursor: default;
+}
+
+.chickenItemContent {
+  flex: 1;
+}
+
+.chickenId {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.chickenBirthTime,
+.chickenEggCount,
+.chickenStatus {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.25rem 0;
+}
+
+.chickenActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.addChickenForm, 
+.addEggForm {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed #ddd;
+}
+
+.addChickenForm h4, 
+.addEggForm h4 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.eggSection {
+  margin-top: 1rem;
+}
+
+.eggList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eggItem {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.eggItem:hover {
+  transform: translateY(-2px);
+}
+
+.eggId {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.eggBirthTime,
+.eggMetadata {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.25rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 鸡和鸡蛋管理样式增强 */
+.viewEggsLink {
+  margin-left: 8px;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.viewEggsLink:hover {
+  color: var(--primary-hover);
+}
+
+.addEggButton {
+  background: linear-gradient(135deg, var(--success-color), #059669);
+  margin-right: 8px;
+}
+
+.addEggButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+}
+
+.eggItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.eggChickenRef {
+  font-size: 0.75rem;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.eggDetails {
+  margin-top: 8px;
+}
+
+.eggDetailLabel {
+  font-weight: 500;
+  color: var(--secondary-color);
+  margin-right: 4px;
+}
+
+.metadataLink {
+  color: var(--primary-color);
+  text-decoration: none;
+  word-break: break-all;
+  font-size: 0.8rem;
+  transition: color 0.2s;
+}
+
+.metadataLink:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.formHelp {
+  font-size: 0.8rem;
+  color: var(--secondary-color);
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  font-style: italic;
 }

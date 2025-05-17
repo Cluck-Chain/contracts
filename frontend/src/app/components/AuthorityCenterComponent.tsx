@@ -27,7 +27,7 @@ export default function AuthorityCenterComponent({
   const [account, setAccount] = useState('');
   
   // Form state
-  const [farmAddress, setFarmAddress] = useState('');
+  const [farmOwnerAddress, setFarmOwnerAddress] = useState('');
   
   const [authorityForm, setAuthorityForm] = useState({
     newAuthority: '',
@@ -92,8 +92,8 @@ export default function AuthorityCenterComponent({
       return null;
     }
     
-    if (!farmAddress) {
-      toast.showError('Please enter the farm contract address');
+    if (!farmOwnerAddress) {
+      toast.showError('Please enter the farm owner address');
       return null;
     }
     
@@ -109,13 +109,13 @@ export default function AuthorityCenterComponent({
       }
       
       // According to the contract, registerFarm only accepts one parameter: farm address
-      const tx = await contract.registerFarm(farmAddress);
+      const tx = await contract.registerFarm(farmOwnerAddress);
       await tx.wait();
       
       toast.showSuccess('Farm registered successfully');
       
       // Clear form
-      setFarmAddress('');
+      setFarmOwnerAddress('');
       
       return true;
     } catch (err) {
@@ -164,7 +164,7 @@ export default function AuthorityCenterComponent({
   
   // Remove authority
   const { execute: removeAuthority, isLoading: isRemovingAuthority } = useContractCall(async () => {
-    if (!provider || !authorityAddress || !isOwner) {
+    if (!provider || !authorityAddress) {
       toast.showError('You do not have permission to perform this operation');
       return null;
     }
@@ -346,8 +346,8 @@ export default function AuthorityCenterComponent({
             </Button>
           </div>
           
-          {/* Only the owner can remove authority */}
-          {isOwner && (
+          {/* authority can remove authority */}
+          {isAuthority && (
             <div className={styles.formGroup}>
               <FormField
                 id="removeAuthority"
@@ -377,11 +377,11 @@ export default function AuthorityCenterComponent({
           <SectionCard title="Register New Farm">
             <FormField
               id="farmAddress"
-              label="Farm Contract Address"
+              label="Farm Owner Address"
               type="text"
-              value={farmAddress}
-              onChange={(e) => setFarmAddress(e.target.value)}
-              placeholder="Enter farm contract address"
+              value={farmOwnerAddress}
+              onChange={(e) => setFarmOwnerAddress(e.target.value)}
+              placeholder="Enter farm owner address"
             />
             <Button 
               onClick={() => registerFarm()}

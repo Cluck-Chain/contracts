@@ -1,21 +1,2 @@
-type ToastType = 'success' | 'error' | 'info' | 'warning';
-
-export function useToast() {
-  const showToast = (message: string, type: ToastType = 'info') => {
-    if (type === 'error') {
-      alert(`错误: ${message}`);
-    } else if (type === 'success') {
-      alert(`成功: ${message}`);
-    } else {
-      alert(message);
-    }
-  };
-
-  return {
-    showToast,
-    showSuccess: (message: string) => showToast(message, 'success'),
-    showError: (message: string) => showToast(message, 'error'),
-    showInfo: (message: string) => showToast(message, 'info'),
-    showWarning: (message: string) => showToast(message, 'warning')
-  };
-} 
+// 直接导出上下文版本的useToast
+export { useToast } from '../contexts/ToastContext'; 

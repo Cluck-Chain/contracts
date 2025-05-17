@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { ToastProvider } from './contexts/ToastContext';
+import './globals.css';
 
 export default function RootLayout({
   children,
@@ -15,7 +17,9 @@ export default function RootLayout({
         <title>Blockchain Farm Management System</title>
       </head>
       <body>
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );
