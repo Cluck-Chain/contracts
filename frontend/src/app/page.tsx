@@ -430,7 +430,7 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <p>You haven't created any farms yet</p>
+              <p>You haven't added any farms yet</p>
             )}
           </div>
         </div>
